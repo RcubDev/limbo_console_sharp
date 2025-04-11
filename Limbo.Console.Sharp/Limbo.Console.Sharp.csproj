@@ -1,0 +1,28 @@
+﻿<Project Sdk="Godot.NET.Sdk/4.4.1">
+  <PropertyGroup>
+      <!-- General Project Settings -->
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>12.0</LangVersion>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <Nullable>enable</Nullable>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    
+    <!-- NuGet Package Metadata -->
+    <PackageId>Limbo.Console.Sharp</PackageId>
+    <Version>0.0.1</Version>
+    <Authors>RcubDev</Authors>
+    <Description>A simple c# wrapper for the limbo_console plug-in for godot.
+     See https://github.com/limbonaut/limbo_console
+    </Description>
+    <Copyright>Copyright © 2025 RcubDev</Copyright>
+    <PackageTags>godot;limbo;console;</PackageTags>
+    <RepositoryUrl>https://github.com/RcubDev/limbo_console_sharp</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/RcubDev/limbo_console_sharp</PackageProjectUrl>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Version for Godot.NET.Sdk 4.4.0 to 4.4.X. Do not allow >= 4.5 -->
+    <PackageReference Include="Godot.NET.Sdk" Version="[4.4.0, 4.5.0)" />
+  </ItemGroup>
+</Project>
