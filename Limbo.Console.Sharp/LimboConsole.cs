@@ -3,13 +3,17 @@ namespace Limbo.Console.Sharp;
 /// <summary>
 /// A class that wraps the limbo console for ease of use with c#
 /// </summary>
-public partial class LimboConsole
+public partial class LimboConsole : Godot.RefCounted
 {
-    // Define a delegate for the signal
-    // TODO: Wire this to _limboConsole's signal
+    /// <summary>
+    /// Delegate type that is emitted when the console is toggled
+    /// </summary>
+    /// <param name="isShown"></param>
     public delegate void ToggledEventHandler(bool isShown);
-    // Expose the delegate as an event
-    public event ToggledEventHandler? OnToggledEvent;
+    /// <summary>
+    /// Event that is emitted when the console is toggled
+    /// </summary>
+    public event ToggledEventHandler? Toggled;
     /// <summary>
     /// Static instance of the console
     /// </summary>
@@ -21,7 +25,8 @@ public partial class LimboConsole
     /// <param name="limboConsole"></param>
     public LimboConsole(CanvasLayer limboConsole)
     {
-        _limboConsole = limboConsole;    
+        _limboConsole = limboConsole;
+        _limboConsole.Connect(LimboConsoleStringNames.ToggledSignal, new Callable(this, nameof(OnToggledSignal)));
         Instance = this;
     }
 
@@ -228,11 +233,11 @@ public partial class LimboConsole
 
     /// <summary>
     /// Registers a callable that should return an array of possible values for the given argument and command.
-    //  It will be used for autocompletion.
+    /// It will be used for autocompletion.
     /// </summary>
-    /// <param name="p_command"></param>
-    /// <param name="p_argument"></param>
-    /// <param name="p_source"></param>
+    /// <param name="pCommand"></param>
+    /// <param name="pArgument"></param>
+    /// <param name="pSource"></param>
     public void AddArgumentAutocompleteSource(string pCommand, int pArgument, Callable pSource)
     {
         _limboConsole.Call(LimboConsoleStringNames.AddArgumentAutocompleteSource, pCommand, pArgument, pSource);
@@ -364,5 +369,16 @@ public partial class LimboConsole
     public void ToggleHistory()
     {
         _limboConsole.Call(LimboConsoleStringNames.ToggleHistory);
+    }
+
+
+    /// <summary>
+    /// Handler for the ToggledSignal.
+    /// Invokes the OnToggledEvent delegate.
+    /// </summary>
+    /// <param name="isShown">Whether the console is shown or not.</param>
+    private void OnToggledSignal(bool isShown)
+    {
+        Toggled?.Invoke(isShown);
     }
 }

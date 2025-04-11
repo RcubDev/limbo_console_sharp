@@ -1,6 +1,8 @@
 using Godot;
 namespace Limbo.Console.Sharp;
-
+/// <summary>
+/// A static class containing all the string names used in limbo_console.gd public api
+/// </summary>
 public class LimboConsoleStringNames
 {
     /// <summary>
