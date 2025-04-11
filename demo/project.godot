@@ -11,7 +11,8 @@ config_version=5
 [application]
 
 config/name="demo"
-config/features=PackedStringArray("4.4", "Forward Plus")
+run/main_scene="uid://c8qlwij88e42l"
+config/features=PackedStringArray("4.4", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
 [autoload]
