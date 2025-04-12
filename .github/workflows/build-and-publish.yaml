@@ -9,7 +9,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  publish:
+  restore_build_pack_and_publish:
+    name: Restore, Build, Pack and Publish
     runs-on: ubuntu-latest
 
     steps:
@@ -24,13 +25,12 @@ jobs:
     - name: restore, build, pack Limbo.Console.Sharp
       run: |
         dotnet restore ./Limbo.Console.Sharp/Limbo.Console.Sharp.csproj
-        dotnet build ./Limbo.Console.Sharp/Limbo.Console.Sharp.csproj --configuration Release
-        dotnet pack --configuration Release
+        dotnet pack --configuration Release --output ./Limbo.Console.Sharp/bin/Release
 
     - name: Publish to nuget
       env:
         NUGET_AUTH_TOKEN: ${{ secrets.NUGET_ORG_API_TOKEN }}
       run: |
-        dotnet nuget push .Limbo.Console.Sharp/bin/Release/*.nupkg \
+        dotnet nuget push ./Limbo.Console.Sharp/bin/Release/*.nupkg \
           --source https://api.nuget.org/v3/index.json \
           --api-key $NUGET_AUTH_TOKEN
