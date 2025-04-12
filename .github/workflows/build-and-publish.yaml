@@ -22,7 +22,7 @@ jobs:
       with:
         dotnet-version: '8.0.x'
 
-    - name: restore, build, pack Limbo.Console.Sharp
+    - name: restore, build, pack LimboConsole.Sharp
       run: |
         dotnet restore ./Limbo.Console.Sharp/Limbo.Console.Sharp.csproj
         dotnet pack ./Limbo.Console.Sharp/Limbo.Console.Sharp.csproj \

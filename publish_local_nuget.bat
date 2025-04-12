@@ -31,14 +31,10 @@ echo nuget pack completed
 
 REM Add the local NuGet source
 cd ../demo
-REM Navigate to the second folder and run another dotnet command
-echo Navigating to demo project
-cd ../demo
 echo Clearing nuget cache (global, http, temp)
-dotnet nuget list source
 dotnet nuget locals all --clear
 
-dotnet add package Limbo.Console.Sharp --version %nuget_version%
+dotnet add package LimboConsole.Sharp --version %nuget_version%
 dotnet restore
 dotnet build
 

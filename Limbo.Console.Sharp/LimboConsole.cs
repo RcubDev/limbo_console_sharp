@@ -9,11 +9,8 @@ public partial class LimboConsole : Godot.RefCounted
     /// Delegate type that is emitted when the console is toggled
     /// </summary>
     /// <param name="isShown"></param>
+    [Signal]
     public delegate void ToggledEventHandler(bool isShown);
-    /// <summary>
-    /// Event that is emitted when the console is toggled
-    /// </summary>
-    public event ToggledEventHandler? Toggled;
     /// <summary>
     /// Static instance of the console
     /// </summary>
@@ -379,6 +376,6 @@ public partial class LimboConsole : Godot.RefCounted
     /// <param name="isShown">Whether the console is shown or not.</param>
     private void OnToggledSignal(bool isShown)
     {
-        Toggled?.Invoke(isShown);
+        EmitSignal(SignalName.Toggled, isShown);
     }
 }
