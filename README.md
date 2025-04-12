@@ -7,7 +7,7 @@
 ![Godot Version](https://img.shields.io/badge/Godot-4.4.X-yellow)
 [![NuGet Downloads](https://img.shields.io/nuget/dt/LimboConsole.Sharp.svg)](https://www.nuget.org/packages/LimboConsole.Sharp)
 
-This package is a c# wrapper that helps facilitate using the [limbo_console](https://github.com/limbonaut/limbo_console) Godot plugin in c#.
+This nuget package is a c# wrapper that helps facilitate using the [limbo_console](https://github.com/limbonaut/limbo_console) Godot plugin in c#.
 
 ## Table of Contents
 
