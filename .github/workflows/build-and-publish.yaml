@@ -25,7 +25,9 @@ jobs:
     - name: restore, build, pack Limbo.Console.Sharp
       run: |
         dotnet restore ./Limbo.Console.Sharp/Limbo.Console.Sharp.csproj
-        dotnet pack --configuration Release --output ./Limbo.Console.Sharp/bin/Release
+        dotnet pack ./Limbo.Console.Sharp/Limbo.Console.Sharp.csproj \
+          --configuration Release \
+          --output ./Limbo.Console.Sharp/bin/Release
 
     - name: Publish to nuget
       env:
