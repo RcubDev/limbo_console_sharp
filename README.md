@@ -7,7 +7,7 @@
 ![Godot Version](https://img.shields.io/badge/Godot-4.4.X-yellow)
 [![NuGet Downloads](https://img.shields.io/nuget/dt/LimboConsole.Sharp.svg)](https://www.nuget.org/packages/LimboConsole.Sharp)
 
-This nuget package is a c# wrapper that helps facilitate using the [limbo_console](https://github.com/limbonaut/limbo_console) Godot plugin in c#.
+This nuget package is a c# wrapper that helps facilitate using the [limbo_console](https://github.com/limbonaut/limbo_console) godot plugin in c#.
 
 ## Table of Contents
 
@@ -21,7 +21,7 @@ This nuget package is a c# wrapper that helps facilitate using the [limbo_consol
 
 ## ✨ Features
 
-- **Simplified Integration**: Easily interact with the [💻 limbo_console](https://github.com/limbonaut/limbo_console) Godot plugin from a c# godot game.
+- **Simplified Integration**: Easily interact with the [💻 limbo_console](https://github.com/limbonaut/limbo_console) godot plugin from a c# godot game.
 - **Command Registration**: [Register commands](#register-a-command) with descriptions and auto-complete sources.
 - **Auto-Complete Support**: [Add auto-complete sources](#register-an-auto-complete-source) for command arguments.
 - **Demo Project**: Includes examples for initialization, commands, and advanced features.
@@ -30,14 +30,14 @@ This nuget package is a c# wrapper that helps facilitate using the [limbo_consol
 
 - **Godot Engine**: Version 4.4.X or higher.
 - **.NET SDK**: Version 8.0
-- **limbo_console plugin**: Installed and enabled in your Godot project. See [💻 limbo console](https://github.com/limbonaut/limbo_console).
+- **limbo_console plugin**: Installed and enabled in your godot project. See [💻 limbo console](https://github.com/limbonaut/limbo_console).
 
 ## 🖥️ Installation
 
-1. Ensure the [💻 limbo console](https://github.com/limbonaut/limbo_console) plugin is installed and enabled in your Godot project:
+1. Ensure the [💻 limbo console](https://github.com/limbonaut/limbo_console) plugin is installed and enabled in your godot project:
    - Go to **Project > Project Settings > Plugins** and enable the plugin.
 
-2. Install the NuGet package for your Godot C# project (compatible with Godot 4.4.X).
+2. Install the nuget package for your godot c# project (compatible with godot 4.4.X).
 
 ### Using `dotnet` CLI
 
@@ -116,13 +116,13 @@ See something you want or could improve upon? Make a PR! ✨
 
 ### Project structure
 
-- **Limbo.Console.Sharp**: The root of the NuGet package.
+- **Limbo.Console.Sharp**: The root of the nuget package.
   - **Pack**: Use `dotnet pack` to create the package. Alternatively, run the provided `.bat` script on Windows to automate packaging to the demo project.
 
-  > The `.bat` file is a helpful reference for understanding how the demo project and the NuGet package interact. It automates the packaging process for Windows users to test changes in the demo project.
+  > The `.bat` file is a helpful reference for understanding how the demo project and the nuget package interact. It automates the packaging process for Windows users to test changes in the demo project.
 
-- **Demo Project**: A sample Godot project included to demonstrate:
-  - Initializing the C# console wrapper.
+- **Demo Project**: A sample godot project included to demonstrate:
+  - Initializing the c# console wrapper.
   - Registering commands and auto-complete sources.
   - Using advanced features like signals and callable commands.
 
