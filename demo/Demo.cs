@@ -3,12 +3,23 @@ using Limbo.Console.Sharp;
 using System;
 using System.Linq;
 
+/// <summary>
+/// Demo class to show how to use the LimboConsole wrapper
+/// </summary>
 public partial class Demo : Node2D
 {
+    /// <summary>
+    /// The c# LimboConsole wrapper instance that helps to facilitate
+    /// the communication between the limbo_console.gd script and c#
+    /// </summary>
     private LimboConsole _console;
     public override void _Ready()
     {
+        // Get the LimboConsole singleton from the game
+        // If this isn't here make sure you go though and install the plug-in this wrapper is for
+        // here: https://github.com/limbonaut/limbo_console
         var limboConsole = GetTree().Root.GetNode<CanvasLayer>("LimboConsole");
+        // Instantiate the wrapper with the LimboConsole singleton
         _console = new LimboConsole(limboConsole);
 
         // Registering a command with no arguments
@@ -25,10 +36,20 @@ public partial class Demo : Node2D
         // Arguments with auto-complete sources index starts at 1 (max is 5 currently)
         _console.AddArgumentAutocompleteSource("abc", 1, Callable.From(() => new string[] { "a", "b", "c" }));
 
-        // Register commands via callables 
-        // NOTE: currently there is a bug in godot that will throw an error but they still work and register
-        //       see (https://github.com/limbonaut/limbo_console/issues/60)
+        _console.RegisterCommand(new Callable(this, MethodName.AddCallableCommands), "add_callable_commands", "adds the commands that show the callable registration");
 
+        // NOTE: C# does not support bind and unbind, use lambdas instead:
+        // see https://docs.godotengine.org/en/stable/tutorials/scripting/c_sharp/c_sharp_differences.html#callable
+    }
+
+    /// <summary>
+    /// Register commands via callables - currently registered this way to show that it works but the errors are rather annoying
+    /// so the user must explicity turn them on to see them in this demo project
+    /// NOTE: currently there is a bug in godot that will throw an error but they still work and register
+    ///       see (https://github.com/limbonaut/limbo_console/issues/60)
+    /// </summary>
+    private void AddCallableCommands()
+    {
         // Register in-line lamda
         _console.RegisterCommand(Callable.From(() => _console.PrintLine("Hello World!")),
                                                          "hello_callable",
@@ -46,10 +67,16 @@ public partial class Demo : Node2D
                                     }),
                                     "hello_callable_abc",
                                     "Prints Hello World and the value if it is a, b, or c");
-        _console.AddArgumentAutocompleteSource("hell_callable_arg", 1, Callable.From(() => validOptions));
-
-        // NOTE: You don't really have a need for bound arguments in c# since you can use lambdas
-        // see https://docs.godotengine.org/en/stable/tutorials/scripting/c_sharp/c_sharp_differences.html#callable
+        _console.AddArgumentAutocompleteSource("hello_callable_abc", 1, Callable.From(() => validOptions));
+    }
+    /// <summary>
+    /// Removes the callable commands 
+    /// </summary>
+    private void RemoveCallableCommands()
+    {
+        _console.UnregisterCommand("hello_callable");
+        _console.UnregisterCommand("hello_callable_arg");
+        _console.UnregisterCommand("hello_callable_abc");
     }
 
     /// <summary>
