@@ -2,7 +2,7 @@ REM This batch file automates building and placing local changes in the Limbo.Co
 @echo off
 if "%1" == "" (
     echo No version provided using default version 0.0.1
-    set nuget_version="0.0.1"
+    set nuget_version="0.0.1-beta"
 ) else (
     set nuget_version=%1
 )
