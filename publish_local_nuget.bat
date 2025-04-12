@@ -7,6 +7,7 @@ if "%1" == "" (
     set nuget_version=%1
 )
 
+REM TODO: Update bat file to use the version specified in csproj file
 REM We need to bust the nuget cache or else we will continually have to increment version numbers
 REM we only really want to increment version numbers when we are ready to publish
 echo This will clear your nuget cache completely if you proceed -- packages will be restored during this process

@@ -37,7 +37,8 @@ public partial class Demo : Node2D
         _console.AddArgumentAutocompleteSource("abc", 1, Callable.From(() => new string[] { "a", "b", "c" }));
 
         _console.RegisterCommand(new Callable(this, MethodName.AddCallableCommands), "add_callable_commands", "adds the commands that show the callable registration");
-
+        _console.RegisterCommand(new Callable(this, MethodName.RemoveCallableCommands), "remove_callable_commands", "removes the commands that show the callable registration");
+        
         // NOTE: C# does not support bind and unbind, use lambdas instead:
         // see https://docs.godotengine.org/en/stable/tutorials/scripting/c_sharp/c_sharp_differences.html#callable
     }

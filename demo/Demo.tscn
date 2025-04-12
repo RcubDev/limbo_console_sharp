@@ -1,8 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://c8qlwij88e42l"]
+[gd_scene load_steps=3 format=3 uid="uid://c8qlwij88e42l"]
 
 [ext_resource type="Script" uid="uid://dxt20dhlh60qe" path="res://Demo.cs" id="1_64soo"]
 [ext_resource type="Texture2D" uid="uid://cxn1g7qqirh84" path="res://icon.svg" id="1_l4713"]
-[ext_resource type="Script" uid="uid://fxgb5q51gbpa" path="res://icon.gd" id="3_umdxf"]
 
 [node name="Demo" type="Node2D"]
 script = ExtResource("1_64soo")
@@ -10,4 +9,3 @@ script = ExtResource("1_64soo")
 [node name="Icon" type="Sprite2D" parent="."]
 position = Vector2(493, 443)
 texture = ExtResource("1_l4713")
-script = ExtResource("3_umdxf")

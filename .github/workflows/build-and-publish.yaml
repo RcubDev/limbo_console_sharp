@@ -8,6 +8,7 @@ on:
   #pull_request:
   workflow_dispatch:
 
+# TODO: Can we run this only when we have seen that the version is incremented somewhere?
 jobs:
   restore_build_pack_and_publish:
     name: Restore, Build, Pack and Publish
@@ -34,3 +35,5 @@ jobs:
         NUGET_AUTH_TOKEN: ${{ secrets.NUGET_ORG_API_TOKEN }}
       run: |
         dotnet nuget push ./Limbo.Console.Sharp/bin/Release/*.nupkg --source https://api.nuget.org/v3/index.json --api-key $NUGET_AUTH_TOKEN
+    
+  
