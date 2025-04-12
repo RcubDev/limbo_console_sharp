@@ -9,7 +9,7 @@
     
     <!-- NuGet Package Metadata -->
     <PackageId>Limbo.Console.Sharp</PackageId>
-    <Version>0.0.1</Version>
+    <Version>0.0.1-beta</Version>
     <Authors>RcubDev</Authors>
     <Description>A simple c# wrapper for the limbo_console plug-in for godot.
      See https://github.com/limbonaut/limbo_console
