@@ -41,9 +41,9 @@ jobs:
             --configuration Release \
             --output ./Limbo.Console.Sharp/bin/Release
 
-      # - name: Publish to nuget
-      #   if: env.VERSION_CHANGED == 'true'
-      #   env:
-      #     NUGET_AUTH_TOKEN: ${{ secrets.NUGET_ORG_API_TOKEN }}
-      #   run: |
-      #     dotnet nuget push ./Limbo.Console.Sharp/bin/Release/*.nupkg --source https://api.nuget.org/v3/index.json --api-key $NUGET_AUTH_TOKEN
+      - name: Publish to nuget
+        if: env.VERSION_CHANGED == 'true'
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.NUGET_ORG_API_TOKEN }}
+        run: |
+          dotnet nuget push ./Limbo.Console.Sharp/bin/Release/*.nupkg --source https://api.nuget.org/v3/index.json --api-key $NUGET_AUTH_TOKEN
