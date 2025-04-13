@@ -1,13 +1,20 @@
 REM This batch file automates building and placing local changes in the Limbo.Console.Sharp project and its demo project.
 @echo off
-if "%1" == "" (
-    echo No version provided using default version 0.0.1
-    set nuget_version="0.0.1-beta"
-) else (
-    set nuget_version=%1
+set version_file=version.txt
+if not exist %version_file% (
+    echo ERROR: %version_file% not found. Ensure the file exists and contains the version.
+    exit /b
 )
 
-REM TODO: Update bat file to use the version specified in csproj file
+REM Read the version from the file that outputs on Limbo.Console.Sharp build
+set /p nuget_version=< version.txt
+
+
+if "%nuget_version%" == "" (
+    echo ERROR: Version not found in %version_file%. Make sure to build the plugin first!.
+    exit /b
+)
+
 REM We need to bust the nuget cache or else we will continually have to increment version numbers
 REM we only really want to increment version numbers when we are ready to publish
 echo This will clear your nuget cache completely if you proceed -- packages will be restored during this process

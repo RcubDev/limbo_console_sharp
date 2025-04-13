@@ -16,3 +16,6 @@ mono_crash.*.json
 
 # Ignore nuget output folder
 demo/nuget
+
+Limbo.Console.Sharp/bin
+Limbo.Console.Sharp/obj

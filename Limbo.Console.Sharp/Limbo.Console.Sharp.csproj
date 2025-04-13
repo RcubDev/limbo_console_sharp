@@ -1,4 +1,4 @@
-﻿<Project Sdk="Godot.NET.Sdk/4.4.1">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
       <!-- General Project Settings -->
     <TargetFramework>net8.0</TargetFramework>
@@ -21,10 +21,16 @@
     <PackageProjectUrl>https://github.com/RcubDev/limbo_console_sharp</PackageProjectUrl>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <VersionFilePath>$(MSBuildThisFileDirectory)..\version.txt</VersionFilePath>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="..\README.md" Pack="true" PackagePath="\"/>
-    <!-- Version for Godot.NET.Sdk 4.4.0 to 4.4.X. Do not allow >= 4.5 -->
-    <PackageReference Include="Godot.NET.Sdk" Version="[4.4.0, 4.5.0)" />
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="GodotSharp" Version="[4.4.0, 4.5.0)" />
+  </ItemGroup>
+
+  <Target Name="WriteVersionToFile" AfterTargets="Build">
+    <WriteLinesToFile File="$(VersionFilePath)" Lines="Version=$(Version)" Overwrite="true" />
+  </Target>
 </Project>
