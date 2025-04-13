@@ -25,7 +25,7 @@ jobs:
       run: |
         if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
           echo "Manually triggered. Skipping version.txt check."
-        elif git diff --quiet HEAD^ HEAD -- version.txt; then
+        elif git diff --quiet HEAD^ HEAD --version.txt; then
           echo "No changes in version.txt. Exiting workflow."
           exit 0
         fi

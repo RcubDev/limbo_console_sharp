@@ -1,19 +1,5 @@
 REM This batch file automates building and placing local changes in the Limbo.Console.Sharp project and its demo project.
 @echo off
-set version_file=version.txt
-if not exist %version_file% (
-    echo ERROR: %version_file% not found. Ensure the file exists and contains the version.
-    exit /b
-)
-
-REM Read the version from the file that outputs on Limbo.Console.Sharp build
-set /p nuget_version=< version.txt
-
-
-if "%nuget_version%" == "" (
-    echo ERROR: Version not found in %version_file%. Make sure to build the plugin first!.
-    exit /b
-)
 
 REM We need to bust the nuget cache or else we will continually have to increment version numbers
 REM we only really want to increment version numbers when we are ready to publish
@@ -37,8 +23,25 @@ echo packing Limbo.Console.Sharp version %nuget_version%
 dotnet pack --configuration Release --output ../demo/nuget
 echo nuget pack completed
 
+cd ../
+set version_file=version.txt
+if not exist %version_file% (
+    echo ERROR: %version_file% not found. Ensure the file exists and contains the version.
+    exit /b
+)
+
+REM Read the version from the file that outputs on Limbo.Console.Sharp build
+set /p nuget_version=< version.txt
+
+
+if "%nuget_version%" == "" (
+    echo ERROR: Version not found in %version_file%. Make sure to build the plugin first!.
+    exit /b
+)
+
+
 REM Add the local NuGet source
-cd ../demo
+cd demo
 echo Clearing nuget cache (global, http, temp)
 dotnet nuget locals all --clear
 
@@ -46,5 +49,5 @@ dotnet add package LimboConsole.Sharp --version %nuget_version%
 dotnet restore
 dotnet build
 
-echo you should restart your IDEs to get the updated code for the package
-echo Done!
+echo nuget package version %nuget_version% added to demo project.
+echo you should restart your IDEs to get the updated intellisense for the package

@@ -32,6 +32,6 @@
     <PackageReference Include="GodotSharp" Version="[4.4.0, 4.5.0)" />
   </ItemGroup>
   <Target Name="WriteVersionToFile" AfterTargets="Build">
-    <WriteLinesToFile File="$(VersionFilePath)" Lines="Version=$(Version)" Overwrite="true" />
+    <WriteLinesToFile File="$(VersionFilePath)" Lines="$(Version)" Overwrite="true" />
   </Target>
 </Project>
