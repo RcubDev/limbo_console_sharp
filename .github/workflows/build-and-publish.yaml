@@ -2,13 +2,11 @@ name: Build & Publish Package
 
 on:
   # Add this once we are confident in the workflow
-  #push:
-  #  branches:
-  #    - main
-  #pull_request:
+  push:
+   branches:
+     - main
   workflow_dispatch:
 
-# TODO: Can we run this only when we have seen that the version is incremented somewhere?
 jobs:
   restore_build_pack_and_publish:
     name: Restore, Build, Pack and Publish

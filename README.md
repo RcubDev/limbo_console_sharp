@@ -17,6 +17,7 @@ This nuget package is a c# wrapper that helps facilitate using the [limbo_consol
 - [Documentation](#-documentation)
 - [Contributing](#-contributing)
 - [Features](#-features)
+- [Changelog](#-changelog)
 - [License](#-license)
 
 ## ✨ Features
@@ -94,7 +95,7 @@ You can also add auto-complete sources for command arguments:
 console.AddArgumentAutocompleteSource("abc", 1, Callable.From(() => new string[] { "a", "b", "c" }));
 ```
 
-This example adds an auto-complete source for the first argument of the `abc` command, suggesting the values `a`, `b`, or `c`. 
+This example adds an auto-complete source for the first argument of the `abc` command, suggesting the values `a`, `b`, or `c`.
 
 > **Note**:  when registering an argument index starts at 1 not 0 and currently has a max of 5 arguments
 
@@ -105,6 +106,8 @@ See run the demo project and see [`Demo.cs`](demo/Demo.cs) for more examples of 
 ## 📚 Documentation
 
 See summary comments in nuget package or refer to [💻 limbo_console](https://github.com/limbonaut/limbo_console)
+
+For a detailed history of changes, see the [Changelog](CHANGELOG.md).
 
 ## 🤝 Contributing
 
@@ -131,6 +134,10 @@ See something you want or could improve upon? Make a PR! ✨
 ## Code Style & Recommendations
 
 - Follow the official [Microsoft coding conventions](https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/coding-conventions) and [name identifiers](https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/identifier-names)
+
+## 📋 Changelog
+
+See the [CHANGELOG.md](CHANGELOG.md) file for a detailed list of changes in each version.
 
 ## 📜 License
 

@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-      <!-- General Project Settings -->
+    <!-- General Project Settings -->
     <TargetFramework>net8.0</TargetFramework>
     <LangVersion>12.0</LangVersion>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
@@ -9,7 +9,7 @@
     
     <!-- NuGet Package Metadata -->
     <PackageId>LimboConsole.Sharp</PackageId>
-    <Version>0.0.1-beta-003</Version>
+    <Version>0.0.1-beta-004</Version>
     <Authors>RcubDev</Authors>
     <Description>A simple c# wrapper for the limbo_console plug-in for godot.
      See https://github.com/limbonaut/limbo_console
@@ -22,14 +22,15 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <VersionFilePath>$(MSBuildThisFileDirectory)..\version.txt</VersionFilePath>
+    <PackageReleaseNotes>See the changelog at https://github.com/RcubDev/limbo_console_sharp/blob/main/CHANGELOG.md</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\CHANGELOG.md" Pack="true" PackagePath="\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="GodotSharp" Version="[4.4.0, 4.5.0)" />
   </ItemGroup>
-
   <Target Name="WriteVersionToFile" AfterTargets="Build">
     <WriteLinesToFile File="$(VersionFilePath)" Lines="Version=$(Version)" Overwrite="true" />
   </Target>

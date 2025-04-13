@@ -1,0 +1,34 @@
+# Changelog
+
+This change log is to help track when new version of the nuget package are published. If the commit updates the package version the change log should be updated. Optionally update the [Unreleased](#unreleased) section of the change log when you PR to make this easier to do!
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
+
+## [Unreleased]
+
+- Replace with coming additions, changes, removals, or fixes
+
+## [0.0.1-beta-004] - 2025-04-12
+
+### Added
+
+- `CHANGELOG.md` to the NuGet package metadata.
+
+## [0.0.1-beta-003] - 2025-04-12
+
+### Changed
+
+- Updated project SDK from Godot.SDK to Microsoft.NET.Sdk for easier supporting of mutliple godot versions (this should also let the package truly support all godot 4.4.X versions)
+
+## [0.0.1-beta-002] - 2025-04-12
+
+### Changed
+
+- README.md updated to better explain the project
+
+## [0.0.1-beta-001] - 2025-04-11
+
+### Added
+
+- Initial release of `LimboConsole.Sharp`.
+- Basic functionality for interacting with the `limbo_console` Godot plugin.
