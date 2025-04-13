@@ -1,1 +1,1 @@
-Version=0.0.1-beta-002
+Version=0.0.1-beta-003

@@ -23,6 +23,15 @@ jobs:
       with:
         dotnet-version: '8.0.x'
 
+    - name: Check if version.txt has changed
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          echo "Manually triggered. Skipping version.txt check."
+        elif git diff --quiet HEAD^ HEAD -- version.txt; then
+          echo "No changes in version.txt. Exiting workflow."
+          exit 0
+        fi
+
     - name: restore, build, pack LimboConsole.Sharp
       run: |
         dotnet restore ./Limbo.Console.Sharp/Limbo.Console.Sharp.csproj
@@ -35,5 +44,4 @@ jobs:
         NUGET_AUTH_TOKEN: ${{ secrets.NUGET_ORG_API_TOKEN }}
       run: |
         dotnet nuget push ./Limbo.Console.Sharp/bin/Release/*.nupkg --source https://api.nuget.org/v3/index.json --api-key $NUGET_AUTH_TOKEN
-    
-  
+
