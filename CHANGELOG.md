@@ -8,6 +8,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 - Replace with coming additions, changes, removals, or fixes
 
+## [0.0.1-beta-006] - 2025-04-16
+
+### Changed
+
+- Updated LimboConsole class to be static for easier use
+
+### Removed
+
+- Removed all instuctions on wrapper initialization as initialization will happen on first use of the wrapper
+
+## [0.0.1-beta-005] - 2025-04-12
+
+### Changed
+
+- Build pipeline changes
+
 ## [0.0.1-beta-004] - 2025-04-12
 
 ### Added
