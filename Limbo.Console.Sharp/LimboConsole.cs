@@ -3,115 +3,106 @@ namespace Limbo.Console.Sharp;
 /// <summary>
 /// A class that wraps the limbo console for ease of use with c#
 /// </summary>
-public partial class LimboConsole : Godot.RefCounted
+public static class LimboConsole
 {
-    /// <summary>
-    /// Delegate type that is emitted when the console is toggled
-    /// </summary>
-    /// <param name="isShown"></param>
-    public delegate void ToggledEventHandler(bool isShown);
-    /// <summary>
-    /// Event that is emitted when the console is toggled
-    /// </summary>
-    public event ToggledEventHandler? Toggled;
-    /// <summary>
-    /// Static instance of the console
-    /// </summary>
-    public static LimboConsole Instance { get; private set; } = null!;
-    CanvasLayer _limboConsole = null!;
-    /// <summary>
-    /// Passes the limbo console to the wrapper
-    /// </summary>
-    /// <param name="limboConsole"></param>
-    public LimboConsole(CanvasLayer limboConsole)
+    static CanvasLayer _limboConsole = null!;
+
+    private static CanvasLayer LimboConsoleInstance
     {
-        _limboConsole = limboConsole;
-        _limboConsole.Connect(LimboConsoleStringNames.ToggledSignal, new Callable(this, nameof(OnToggledSignal)));
-        Instance = this;
+        get
+        {
+            if (_limboConsole == null)
+            {                
+                var mainLoop = Godot.Engine.GetMainLoop();
+                var sceneTree = (mainLoop as SceneTree)!;
+                _limboConsole = sceneTree.Root.GetNode<CanvasLayer>("LimboConsole")!;
+            }
+            return _limboConsole;
+        }
     }
 
     /// <summary>
     /// Opens the console if it is enabled - sets process mode to true for the console
     /// </summary>
-    public void OpenConsole()
+    public static void OpenConsole()
     {
-        _limboConsole.Call(LimboConsoleStringNames.OpenConsole);
+        LimboConsoleInstance.Call(LimboConsoleStringNames.OpenConsole);
     }
     /// <summary>
     /// Hides the console if it is enabled - sets process mode to false for the console
     /// </summary>
-    public void CloseConsole()
+    public static void CloseConsole()
     {
-        _limboConsole.Call(LimboConsoleStringNames.CloseConsole);
+        LimboConsoleInstance.Call(LimboConsoleStringNames.CloseConsole);
     }
 
     /// <summary>
     /// Returns true if the console is visible
     /// </summary>
     /// <returns></returns>
-    public bool IsVisible()
+    public static bool IsVisible()
     {
-        return _limboConsole.Call(LimboConsoleStringNames.IsVisible).As<bool>();
+        return LimboConsoleInstance.Call(LimboConsoleStringNames.IsVisible).As<bool>();
     }
 
     /// <summary>
     /// Flips the current state of the console
     /// </summary>
-    public void ToggleConsole()
+    public static void ToggleConsole()
     {
-        _limboConsole.Call(LimboConsoleStringNames.ToggleConsole);
+        LimboConsoleInstance.Call(LimboConsoleStringNames.ToggleConsole);
     }
 
     /// <summary>
     /// Clears all messages in the console
     /// </summary>
-    public void ClearConsole()
+    public static void ClearConsole()
     {
-        _limboConsole.Call(LimboConsoleStringNames.ClearConsole);
+        LimboConsoleInstance.Call(LimboConsoleStringNames.ClearConsole);
     }
 
     /// <summary>
     /// Prints an info message to the console and the output
     /// </summary>
     /// <param name="pLine"></param>
-    public void Info(string pLine)
+    public static void Info(string pLine)
     {
-        _limboConsole.Call(LimboConsoleStringNames.Info, pLine);
+        LimboConsoleInstance.Call(LimboConsoleStringNames.Info, pLine);
     }
     /// <summary>
     /// Prints an error message to the console and the output
     /// </summary>
     /// <param name="pLine"></param>
-    public void Error(string pLine)
+    public static void Error(string pLine)
     {
-        _limboConsole.Call(LimboConsoleStringNames.Error, pLine);
+        LimboConsoleInstance.Call(LimboConsoleStringNames.Error, pLine);
     }
 
     /// <summary>
     /// Prints a warning message to the console and the output
     /// </summary>
     /// <param name="pLine"></param>
-    public void Warn(string pLine)
+    public static void Warn(string pLine)
     {
-        _limboConsole.Call(LimboConsoleStringNames.Warn, pLine);
+        LimboConsoleInstance.Call(LimboConsoleStringNames.Warn, pLine);
     }
 
     /// <summary>
     /// Prints a debug message to the console and the output
     /// </summary>
     /// <param name="pLine"></param>
-    public void Debug(string pLine)
+    public static void Debug(string pLine)
     {
-        _limboConsole.Call(LimboConsoleStringNames.Debug, pLine);
+        LimboConsoleInstance.Call(LimboConsoleStringNames.Debug, pLine);
     }
 
     /// <summary>
     /// Prints a line using boxed ASCII art
     /// </summary>
     /// <param name="p_line"></param>
-    public void PrintBoxed(string p_line)
+    public static void PrintBoxed(string p_line)
     {
-        _limboConsole.Call(LimboConsoleStringNames.PrintBoxed, p_line);
+        LimboConsoleInstance.Call(LimboConsoleStringNames.PrintBoxed, p_line);
     }
 
     /// <summary>
@@ -119,9 +110,9 @@ public partial class LimboConsole : Godot.RefCounted
     /// </summary>
     /// <param name="pLine"></param>
     /// <param name="pStdOut"></param>
-    public void PrintLine(string pLine, bool pStdOut = false)
+    public static void PrintLine(string pLine, bool pStdOut = false)
     {
-        _limboConsole.Call(LimboConsoleStringNames.PrintLine, pLine, pStdOut);
+        LimboConsoleInstance.Call(LimboConsoleStringNames.PrintLine, pLine, pStdOut);
     }
 
     /// <summary>
@@ -131,27 +122,27 @@ public partial class LimboConsole : Godot.RefCounted
     /// <param name="pFunc"></param>
     /// <param name="pName"></param>
     /// <param name="pDesc"></param>
-    public void RegisterCommand(Callable pFunc, string pName = "", string pDesc = "")
+    public static void RegisterCommand(Callable pFunc, string pName = "", string pDesc = "")
     {
-        _limboConsole.Call(LimboConsoleStringNames.RegisterCommand, pFunc, pName, pDesc);
+        LimboConsoleInstance.Call(LimboConsoleStringNames.RegisterCommand, pFunc, pName, pDesc);
     }
 
     /// <summary>
     /// Unregisters a command by its callable
     /// </summary>
     /// <param name="pFunc"></param>
-    public void UnregisterCommand(Callable pFunc)
+    public static void UnregisterCommand(Callable pFunc)
     {
-        _limboConsole.Call(LimboConsoleStringNames.UnregisterCommand, pFunc);
+        LimboConsoleInstance.Call(LimboConsoleStringNames.UnregisterCommand, pFunc);
     }
 
     /// <summary>
     /// Unregisters a command by its name
     /// </summary>
     /// <param name="pName"></param>
-    public void UnregisterCommand(string pName)
+    public static void UnregisterCommand(string pName)
     {
-        _limboConsole.Call(LimboConsoleStringNames.UnregisterCommand, pName);
+        LimboConsoleInstance.Call(LimboConsoleStringNames.UnregisterCommand, pName);
     }
 
     /// <summary>
@@ -159,9 +150,9 @@ public partial class LimboConsole : Godot.RefCounted
     /// </summary>
     /// <param name="pName"></param>
     /// <returns></returns>
-    public bool HasCommand(string pName)
+    public static bool HasCommand(string pName)
     {
-        return _limboConsole.Call(LimboConsoleStringNames.HasCommand, pName).As<bool>();
+        return LimboConsoleInstance.Call(LimboConsoleStringNames.HasCommand, pName).As<bool>();
     }
     /// <summary>
     /// Gets all command names registered in the console.
@@ -169,9 +160,9 @@ public partial class LimboConsole : Godot.RefCounted
     /// </summary>
     /// <param name="p_include_aliases"></param>
     /// <returns></returns>
-    public string[] GetCommandNames(bool p_include_aliases = false)
+    public static string[] GetCommandNames(bool p_include_aliases = false)
     {
-        return _limboConsole.Call(LimboConsoleStringNames.GetCommandNames, p_include_aliases).AsStringArray();
+        return LimboConsoleInstance.Call(LimboConsoleStringNames.GetCommandNames, p_include_aliases).AsStringArray();
     }
 
     /// <summary>
@@ -180,9 +171,9 @@ public partial class LimboConsole : Godot.RefCounted
     /// </summary>
     /// <param name="pName"></param>
     /// <returns></returns>
-    public string GetCommandDescription(string pName)
+    public static string GetCommandDescription(string pName)
     {
-        return _limboConsole.Call(LimboConsoleStringNames.GetCommandDescription, pName).AsString();
+        return LimboConsoleInstance.Call(LimboConsoleStringNames.GetCommandDescription, pName).AsString();
     }
 
     /// <summary>
@@ -190,45 +181,45 @@ public partial class LimboConsole : Godot.RefCounted
     /// </summary>
     /// <param name="alias"></param>
     /// <param name="pCommandToRun"></param>
-    public void AddAlias(string alias, string pCommandToRun)
+    public static void AddAlias(string alias, string pCommandToRun)
     {
-        _limboConsole.Call(LimboConsoleStringNames.AddAlias, alias, pCommandToRun);
+        LimboConsoleInstance.Call(LimboConsoleStringNames.AddAlias, alias, pCommandToRun);
     }
 
     /// <summary>
     /// Removes an alias by name.
     /// </summary>
     /// <param name="pName"></param>
-    public void RemoveAlias(string pName)
+    public static void RemoveAlias(string pName)
     {
-        _limboConsole.Call(LimboConsoleStringNames.RemoveAlias, pName);
+        LimboConsoleInstance.Call(LimboConsoleStringNames.RemoveAlias, pName);
     }
     /// <summary>
     /// Is an alias registered by the given name.
     /// </summary>
     /// <param name="pName"></param>
     /// <returns></returns>
-    public bool HasAlias(string pName)
+    public static bool HasAlias(string pName)
     {
-        return _limboConsole.Call(LimboConsoleStringNames.HasAlias, pName).AsBool();
+        return LimboConsoleInstance.Call(LimboConsoleStringNames.HasAlias, pName).AsBool();
     }
 
     /// <summary>
     /// Lists all registered aliases
     /// </summary>
     /// <returns></returns>
-    public string[] GetAliases()
+    public static string[] GetAliases()
     {
-        return _limboConsole.Call(LimboConsoleStringNames.GetAliases).AsStringArray();
+        return LimboConsoleInstance.Call(LimboConsoleStringNames.GetAliases).AsStringArray();
     }
     /// <summary>
     /// Returns the alias's actual command as an argument vector.
     /// </summary>
     /// <param name="p_alias"></param>
     /// <returns></returns>
-    public string[] GetAliasArgv(string p_alias)
+    public static string[] GetAliasArgv(string p_alias)
     {
-        return _limboConsole.Call(LimboConsoleStringNames.GetAliasArgv, p_alias).AsStringArray();
+        return LimboConsoleInstance.Call(LimboConsoleStringNames.GetAliasArgv, p_alias).AsStringArray();
     }
 
     /// <summary>
@@ -238,9 +229,9 @@ public partial class LimboConsole : Godot.RefCounted
     /// <param name="pCommand"></param>
     /// <param name="pArgument"></param>
     /// <param name="pSource"></param>
-    public void AddArgumentAutocompleteSource(string pCommand, int pArgument, Callable pSource)
+    public static void AddArgumentAutocompleteSource(string pCommand, int pArgument, Callable pSource)
     {
-        _limboConsole.Call(LimboConsoleStringNames.AddArgumentAutocompleteSource, pCommand, pArgument, pSource);
+        LimboConsoleInstance.Call(LimboConsoleStringNames.AddArgumentAutocompleteSource, pCommand, pArgument, pSource);
     }
 
     /// <summary>        
@@ -248,9 +239,9 @@ public partial class LimboConsole : Godot.RefCounted
     /// </summary>
     /// <param name="pCommandLine"></param>
     /// <param name="pSilent"></param>
-    public void ExecuteCommand(string pCommandLine, bool pSilent = false)
+    public static void ExecuteCommand(string pCommandLine, bool pSilent = false)
     {
-        _limboConsole.Call(LimboConsoleStringNames.ExecuteCommand, pCommandLine, pSilent);
+        LimboConsoleInstance.Call(LimboConsoleStringNames.ExecuteCommand, pCommandLine, pSilent);
     }
 
     /// <summary>
@@ -258,9 +249,9 @@ public partial class LimboConsole : Godot.RefCounted
     /// </summary>
     /// <param name="pFile"></param>
     /// <param name="pSilent"></param>
-    public void ExecuteScript(string pFile, bool pSilent = true)
+    public static void ExecuteScript(string pFile, bool pSilent = true)
     {
-        _limboConsole.Call(LimboConsoleStringNames.ExecuteScript, pFile, pSilent);
+        LimboConsoleInstance.Call(LimboConsoleStringNames.ExecuteScript, pFile, pSilent);
     }
 
     /// <summary>
@@ -268,9 +259,9 @@ public partial class LimboConsole : Godot.RefCounted
     /// </summary>
     /// <param name="pText"></param>
     /// <returns></returns>
-    public string FormatTip(string pText)
+    public static string FormatTip(string pText)
     {
-        return _limboConsole.Call(LimboConsoleStringNames.FormatTip, pText).AsString();
+        return LimboConsoleInstance.Call(LimboConsoleStringNames.FormatTip, pText).AsString();
     }
 
     /// <summary>
@@ -278,9 +269,9 @@ public partial class LimboConsole : Godot.RefCounted
     /// </summary>
     /// <param name="p_name"></param>
     /// <returns></returns>
-    public string FormatName(string p_name)
+    public static string FormatName(string p_name)
     {
-        return _limboConsole.Call(LimboConsoleStringNames.FormatName, p_name).AsString();
+        return LimboConsoleInstance.Call(LimboConsoleStringNames.FormatName, p_name).AsString();
     }
 
     /// <summary>
@@ -288,9 +279,9 @@ public partial class LimboConsole : Godot.RefCounted
     /// </summary>
     /// <param name="pCommand"></param>
     /// <returns></returns>
-    public Error Usage(string pCommand)
+    public static Error Usage(string pCommand)
     {
-        return _limboConsole.Call(LimboConsoleStringNames.Usage, pCommand).As<Error>();
+        return LimboConsoleInstance.Call(LimboConsoleStringNames.Usage, pCommand).As<Error>();
     }
 
     /// <summary>
@@ -299,27 +290,27 @@ public partial class LimboConsole : Godot.RefCounted
     /// </summary>
     /// <param name="pName"></param>
     /// <param name="pValue"></param>
-    public void AddEvalInput(string pName, Variant pValue)
+    public static void AddEvalInput(string pName, Variant pValue)
     {
-        _limboConsole.Call(LimboConsoleStringNames.AddEvalInput, pName, pValue);
+        LimboConsoleInstance.Call(LimboConsoleStringNames.AddEvalInput, pName, pValue);
     }
 
     /// <summary>
     /// Remove specified input variable from "eval" command.
     /// </summary>
     /// <param name="pName"></param>
-    public void RemoveEvalInput(string pName)
+    public static void RemoveEvalInput(string pName)
     {
-        _limboConsole.Call(LimboConsoleStringNames.RemoveEvalInput, pName);
+        LimboConsoleInstance.Call(LimboConsoleStringNames.RemoveEvalInput, pName);
     }
 
     /// <summary>
     /// List the defined input variables used in "eval" command.
     /// </summary>
     /// <returns></returns>
-    public string[] GetEvalInputNames()
+    public static string[] GetEvalInputNames()
     {
-        return _limboConsole.Call(LimboConsoleStringNames.GetEvalInputNames).AsStringArray();
+        return LimboConsoleInstance.Call(LimboConsoleStringNames.GetEvalInputNames).AsStringArray();
     }
 
     /// <summary>
@@ -327,9 +318,9 @@ public partial class LimboConsole : Godot.RefCounted
     /// (I am unsure if there is a more specific type I can provide)
     /// </summary>
     /// <returns></returns>
-    public Godot.Collections.Array GetEvalInputs()
+    public static Godot.Collections.Array GetEvalInputs()
     {
-        return _limboConsole.Call(LimboConsoleStringNames.GetEvalInputs).AsGodotArray();
+        return LimboConsoleInstance.Call(LimboConsoleStringNames.GetEvalInputs).AsGodotArray();
     }
 
     /// <summary>
@@ -339,9 +330,9 @@ public partial class LimboConsole : Godot.RefCounted
     /// (I am unure if there is a more specific type I can provide for the input)
     /// </summary>
     /// <param name="instance"></param>
-    public void SetEvalBaseInstance(Variant instance)
+    public static void SetEvalBaseInstance(Variant instance)
     {
-        _limboConsole.Call(LimboConsoleStringNames.SetEvalBaseInstance, instance);
+        LimboConsoleInstance.Call(LimboConsoleStringNames.SetEvalBaseInstance, instance);
     }
 
     /// <summary>
@@ -350,35 +341,62 @@ public partial class LimboConsole : Godot.RefCounted
     /// Null by default.
     /// </summary>
     /// <returns></returns>
-    public object GetEvalBaseInstance()
+    public static Variant GetEvalBaseInstance()
     {
-        return _limboConsole.Call(LimboConsoleStringNames.GetEvalBaseInstance);
+        return LimboConsoleInstance.Call(LimboConsoleStringNames.GetEvalBaseInstance);
     }
 
     /// <summary>
     /// Erases the history that is persisted to the disk.
     /// </summary>
-    public void EraseHistory()
+    public static void EraseHistory()
     {
-        _limboConsole.Call(LimboConsoleStringNames.EraseHistory);
+        LimboConsoleInstance.Call(LimboConsoleStringNames.EraseHistory);
     }
 
     /// <summary>
     /// Toggles the visibility of the history GUI.
     /// </summary>
-    public void ToggleHistory()
+    public static void ToggleHistory()
     {
-        _limboConsole.Call(LimboConsoleStringNames.ToggleHistory);
+        LimboConsoleInstance.Call(LimboConsoleStringNames.ToggleHistory);
     }
 
+    /// <summary>
+    /// Connects the given callable to the signal
+    /// </summary>
+    /// <param name="signalName"></param>
+    /// <param name="callable"></param>
+    public static void Connect(StringName signalName, Callable callable)
+    {
+        LimboConsoleInstance.Connect(signalName, callable);
+    }
+    
+    /// <summary>
+    /// Disconnects the signal from the given callable. Must pass back the same callable that was used to connect!
+    /// </summary>
+    /// <param name="signalName"></param>
+    /// <param name="callable"></param>
+    public static void Disconnect(StringName signalName, Callable callable)
+    {
+        LimboConsoleInstance.Disconnect(signalName, callable);
+    }
 
     /// <summary>
-    /// Handler for the ToggledSignal.
-    /// Invokes the OnToggledEvent delegate.
+    /// Connects the ToggledSignal to the given callable
     /// </summary>
-    /// <param name="isShown">Whether the console is shown or not.</param>
-    private void OnToggledSignal(bool isShown)
+    /// <param name="callable"></param>
+    public static void ConnectToggled(Callable callable)
     {
-        Toggled?.Invoke(isShown);
+        LimboConsoleInstance.Connect(LimboConsoleStringNames.ToggledSignal, callable);
+    }
+
+    /// <summary>
+    /// Disconnects the ToggledSignal from the given callable. Must pass back the same callable that was used to connect!
+    /// </summary>
+    /// <param name="callable"></param>
+    public static void DisconnectToggled(Callable callable)
+    {
+        LimboConsoleInstance.Disconnect(LimboConsoleStringNames.ToggledSignal, callable);
     }
 }

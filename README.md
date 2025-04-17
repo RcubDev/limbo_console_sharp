@@ -58,33 +58,15 @@ Add the following line to your godot game's csproj
 
 ## 📝 Getting started
 
-### Initialize Wrapper
-
-Next on any node in your game you can initialize the console with the following:
-
-```csharp
-var limboConsole = GetTree().Root.GetNode<CanvasLayer>("LimboConsole");
-LimboConsole console = new LimboConsole(limboConsole);
-```
-
- > **Note:** If LimboConsole is not registered when trying to create the wrapper it will error.
-
 ### Register a Command
 
-Once the wrapper is initialized, you can register commands:
-
 ```csharp
-console.RegisterCommand(new Callable(this, MethodName.StartGame), "start_game", "Starts the game");
+// Access the console statically from any node within the tree
+LimboConsole.RegisterCommand(new Callable(this, MethodName.StartGame), "start_game", "Starts the game");
 
 private void StartGame() {
     // Do something
 }
-```
-
-The wrapper is initialized as a singleton for easy access from any node. So after it is initialized you can use `LimboConsole.Instance` anywhere. For example:
-
-```csharp
-LimboConsole.Instance.RegisterCommand(new Callable(this, MethodName.StartGame), "start_game", "Starts the game");
 ```
 
 ### Register an Auto-Complete Source
@@ -92,7 +74,7 @@ LimboConsole.Instance.RegisterCommand(new Callable(this, MethodName.StartGame), 
 You can also add auto-complete sources for command arguments:
 
 ```csharp
-console.AddArgumentAutocompleteSource("abc", 1, Callable.From(() => new string[] { "a", "b", "c" }));
+LimboConsole.AddArgumentAutocompleteSource("abc", 1, Callable.From(() => new string[] { "a", "b", "c" }));
 ```
 
 This example adds an auto-complete source for the first argument of the `abc` command, suggesting the values `a`, `b`, or `c`.
@@ -125,7 +107,6 @@ See something you want or could improve upon? Make a PR! ✨
   > The `.bat` file is a helpful reference for understanding how the demo project and the nuget package interact. It automates the packaging process for Windows users to test changes in the demo project.
 
 - **Demo Project**: A sample godot project included to demonstrate:
-  - Initializing the c# console wrapper.
   - Registering commands and auto-complete sources.
   - Using advanced features like signals and callable commands.
 
