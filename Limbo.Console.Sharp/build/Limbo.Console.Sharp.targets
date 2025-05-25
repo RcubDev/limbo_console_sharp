@@ -1,0 +1,15 @@
+<Project>
+    <PropertyGroup>
+        <!-- Resolve full, absolute path to the analyzer DLL -->
+        <_LimboAnalyzerPath>$([System.IO.Path]::GetFullPath(
+            $([System.IO.Path]::Combine('$(MSBuildThisFileDirectory)', '..', 'analyzers', 'dotnet', 'cs', 'Limbo.Console.Sharp.dll'))
+            ))</_LimboAnalyzerPath>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!-- Force compiler to use analyzer -->
+        <Analyzer Include="$(_LimboAnalyzerPath)" />
+        <!-- Optional: mark as generator -->
+        <CompilerVisibleProperty Include="EmitCompilerGeneratedFiles" />
+    </ItemGroup>
+</Project>

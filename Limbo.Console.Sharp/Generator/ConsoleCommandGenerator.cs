@@ -1,10 +1,17 @@
-﻿namespace Limbo.Console.Sharp.Generator;
+﻿using System.Linq;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Text;
+
+namespace Limbo.Console.Sharp.Generator;
 
 using System.Collections.Generic;
 using System.Text;
-
+/// <summary>
+/// Generates a single function to register all functions in the class labeled with <see cref="ConsoleCommandAttribute"/> 
+/// </summary>
 [Generator]
-public class ConsoleCommandGenerator : IIncrementalGenerator {
+public sealed class ConsoleCommandGenerator : IIncrementalGenerator {
   public void Initialize(IncrementalGeneratorInitializationContext context) {
     var methodsWithAttr = context.SyntaxProvider
       .CreateSyntaxProvider(
@@ -31,10 +38,10 @@ public class ConsoleCommandGenerator : IIncrementalGenerator {
   private static CommandMethodInfo? GetCommandMethod(GeneratorSyntaxContext context) {
     var methodSyntax = (MethodDeclarationSyntax)context.Node;
     var methodSymbol = context.SemanticModel.GetDeclaredSymbol(methodSyntax) as IMethodSymbol;
-    if (methodSymbol is null || !methodSymbol.GetAttributes().Any(attr => attr.AttributeClass?.Name == "ConsoleCommandAttribute"))
+    if (methodSymbol is null || !methodSymbol.GetAttributes().Any(attr => attr.AttributeClass?.Name == nameof(ConsoleCommandAttribute)))
       return null;
 
-    var attrData = methodSymbol.GetAttributes().First(attr => attr.AttributeClass?.Name == "ConsoleCommandAttribute");
+    var attrData = methodSymbol.GetAttributes().First(attr => attr.AttributeClass?.Name == nameof(ConsoleCommandAttribute));
     var args = attrData.ConstructorArguments;
 
     return new CommandMethodInfo {
@@ -45,13 +52,27 @@ public class ConsoleCommandGenerator : IIncrementalGenerator {
     };
   }
 
-  private static string GenerateRegisterFunction(INamedTypeSymbol classSymbol, IEnumerable<CommandMethodInfo> methods) {
+  private static string GenerateRegisterFunction(ISymbol classSymbol, IEnumerable<CommandMethodInfo> methods) {
     var ns = classSymbol.ContainingNamespace.ToDisplayString();
     var sb = new StringBuilder();
-
+    
+    sb.AppendLine("using Godot;");
+    sb.AppendLine("using Limbo.Console.Sharp;");
+    sb.AppendLine();
+    
     sb.AppendLine($"namespace {ns} {{");
-    sb.AppendLine($"partial class {classSymbol.Name} {{");
-    sb.AppendLine("  private void RegisterConsoleCommands() {");
+    
+    var accessibility = classSymbol.DeclaredAccessibility switch {
+      Accessibility.Public => "public",
+      Accessibility.Internal => "internal",
+      Accessibility.Private => "private",
+      Accessibility.Protected => "protected",
+      Accessibility.ProtectedAndInternal => "protected internal",
+      Accessibility.ProtectedOrInternal => "internal protected",
+      _ => "internal"
+    };
+
+    sb.AppendLine($"{accessibility} partial class {classSymbol.Name} {{");    sb.AppendLine(" private void RegisterConsoleCommands() {");
 
     foreach (var method in methods) {
       var callable = method.Method.Parameters.Length == 0
