@@ -9,10 +9,10 @@
 
     <!-- NuGet Package Metadata -->
     <PackageId>LimboConsole.Sharp</PackageId>
-    <Version>0.0.1-beta-006</Version>
+    <Version>0.0.1-beta-007</Version>
     <Authors>RcubDev</Authors>
     <Description>A simple c# wrapper for the limbo_console plug-in for godot.
-     See https://github.com/limbonaut/limbo_console
+      See https://github.com/limbonaut/limbo_console
     </Description>
     <Copyright>Copyright © 2025 RcubDev</Copyright>
     <PackageTags>godot;limbo;console;</PackageTags>
@@ -23,7 +23,8 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <VersionFilePath>$(MSBuildThisFileDirectory)..\version.txt</VersionFilePath>
-    <PackageReleaseNotes>See the changelog at https://github.com/RcubDev/limbo_console_sharp/blob/main/CHANGELOG.md</PackageReleaseNotes>
+    <PackageReleaseNotes>See the changelog at
+      https://github.com/RcubDev/limbo_console_sharp/blob/main/CHANGELOG.md</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="\" />
@@ -36,15 +37,25 @@
     <WriteLinesToFile File="$(VersionFilePath)" Lines="$(Version)" Overwrite="true" />
   </Target>
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="4.11.0" PrivateAssets="all" />
+    <!-- Generator -->
+    <None
+      Include="..\Limbo.Console.Generator\bin\$(Configuration)\netstandard2.0\Limbo.Console.Generator.dll"
+      Pack="true" 
+	  PackagePath="analyzers/dotnet/cs/" />
+    <!-- Include the attribute's dll in the nuget package so users can utilize it -->
+    <None
+      Include="..\Limbo.Console.Abstractions\bin\$(Configuration)\netstandard2.0\Limbo.Console.Abstractions.dll"
+      Pack="true"
+      PackagePath="lib/net8.0/" />
+    <!-- Auto-wire the analyzer -->
+    <!-- Nuget seemingly has issues / warnings if both versions of this file was not included -->
+    <None Include="build\Limbo.Console.Sharp.targets" Pack="true"
+      PackagePath="build\Limbo.Console.Sharp.targets" />
+    <None Include="build\LimboConsole.Sharp.targets" Pack="true"
+      PackagePath="build\LimboConsole.Sharp.targets" />
   </ItemGroup>
   <ItemGroup>
-    <!-- Attribute -->
-    <None Include="$(TargetPath)" Pack="true" PackagePath="lib/net8.0/" />
-    <!-- Generator -->
-    <None Include="$(TargetPath)" Pack="true" PackagePath="analyzers/dotnet/cs/" />
-    <!-- Auto-wire the analyzer -->
-    <None Include="build\Limbo.Console.Sharp.targets" Pack="true" PackagePath="build\Limbo.Console.Sharp.targets" />
+    <ProjectReference Include="..\Limbo.Console.Generator\Limbo.Console.Generator.csproj"
+      ReferenceOutputAssembly="false" />
   </ItemGroup>
 </Project>

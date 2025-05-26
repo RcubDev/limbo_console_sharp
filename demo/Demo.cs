@@ -27,8 +27,17 @@ public partial class Demo : Node2D
         LimboConsole.RegisterCommand(new Callable(this, MethodName.AddCallableCommands), "add_callable_commands", "adds the commands that show the callable registration");
         LimboConsole.RegisterCommand(new Callable(this, MethodName.RemoveCallableCommands), "remove_callable_commands", "removes the commands that show the callable registration");
 
+        // Commands with attributes will only get registered if the RegisterConsoleCommands method is used
+        // from the source generator
+        RegisterConsoleCommands();
         // NOTE: C# does not support bind and unbind, use lambdas instead:
-        // see https://docs.godotengine.org/en/stable/tutorials/scripting/c_sharp/c_sharp_differences.html#callable
+        // see https://docs.godotengine.org/en/stable/tutorials/scripting/c_sharp/c_sharp_differences.html#callable        
+    }
+
+    [ConsoleCommand("AttributeCommand", "A command registered via attributes using source gen!")]
+    public void AttributeConsoleCommand()
+    {
+        LimboConsole.Info("AttributeCommand executed!");
     }
 
     /// <summary>

@@ -46,7 +46,7 @@ echo Clearing nuget cache (global, http, temp)
 dotnet nuget locals all --clear
 
 dotnet add package LimboConsole.Sharp --version %nuget_version%
-dotnet restore
+dotnet clean
 dotnet build
 
 echo nuget package version %nuget_version% added to demo project.
