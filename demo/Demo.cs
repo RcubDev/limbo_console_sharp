@@ -27,7 +27,7 @@ public partial class Demo : Node2D
         LimboConsole.RegisterCommand(new Callable(this, MethodName.AddCallableCommands), "add_callable_commands", "adds the commands that show the callable registration");
         LimboConsole.RegisterCommand(new Callable(this, MethodName.RemoveCallableCommands), "remove_callable_commands", "removes the commands that show the callable registration");
 
-        // Commands with attributes will only get registerd if the RegisterConsoleCommands method is used
+        // Commands with attributes will only get registered if the RegisterConsoleCommands method is used
         // from the source generator
         RegisterConsoleCommands();
         // NOTE: C# does not support bind and unbind, use lambdas instead:
