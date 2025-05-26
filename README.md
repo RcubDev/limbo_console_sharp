@@ -19,6 +19,7 @@ This nuget package is a c# wrapper that helps facilitate using the [limbo_consol
 - [Features](#-features)
 - [Changelog](#-changelog)
 - [License](#-license)
+- [Contributors](#-contributors)
 
 ## ✨ Features
 
@@ -71,7 +72,7 @@ private void StartGame() {
 
 #### Using the [ConsoleCommand] Attribute
 
-You can also use the `[ConsoleCommand]` attribute to easily define commands. 
+You can also use the `[ConsoleCommand]` attribute to easily define commands.
 
 > 💡You _must_ call `RegisterConsoleCommands()` to enable your class's [ConsoleCommands].
 
@@ -153,3 +154,10 @@ See the [CHANGELOG.md](CHANGELOG.md) file for a detailed list of changes in each
 ## 📜 License
 
 This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
+
+## 👥 Contributors
+
+Thanks to these wonderful people for their contributions:
+
+[![ryan-linehan](https://github.com/ryan-linehan.png?size=50)](https://github.com/ryan-linehan)
+[![fahall](https://github.com/fahall.png?size=50)](https://github.com/fahall)
