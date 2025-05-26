@@ -12,7 +12,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Added 
     - [ConsoleCommand] attribute to allow for easy creation of console commands
 
-- Replace with coming additions, changes, removals, or fixes
 
 ## [0.0.1-beta-006] - 2025-04-16
 
