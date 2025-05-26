@@ -8,6 +8,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 - Replace with coming additions, changes, removals, or fixes
 
+## [0.0.1-beta-007] - 2025-05-25
+- Added 
+    - [ConsoleCommand] attribute to allow for easy creation of console commands
+
+
 ## [0.0.1-beta-006] - 2025-04-16
 
 ### Changed

@@ -69,6 +69,36 @@ private void StartGame() {
 }
 ```
 
+#### Using the [ConsoleCommand] Attribute
+
+You can also use the `[ConsoleCommand]` attribute to easily define commands. 
+
+> 💡You _must_ call `RegisterConsoleCommands()` to enable your class's [ConsoleCommands].
+
+```csharp
+
+  // By default use name of function exactly
+  [ConsoleCommand]
+  private void LogFromAttribute() => LimboConsole.Info($"{GlobalPosition}");
+
+  // Pass a custom name
+  [ConsoleCommand("CoolName")]
+  private void StupidName() => LogFromAttribute();
+
+  // Pass a custom name and description
+  [ConsoleCommand("Say", "Shows a message in the console")]
+  private void Print(string message) => LimboConsole.Info(message);
+
+  // Remember to register the commands!
+  private void _Ready() {
+      // This will register the commands
+      RegisterConsoleCommands();
+  }
+
+```
+
+![ConsoleCommand Attribute In Use](docs/consoleCommandExamples.png)
+
 ### Register an Auto-Complete Source
 
 You can also add auto-complete sources for command arguments:
