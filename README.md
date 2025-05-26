@@ -83,7 +83,7 @@ You can also use the `[ConsoleCommand]` attribute to easily define commands.
 
   // Pass a custom name
   [ConsoleCommand("CoolName")]
-  private void StupidName() => LogFromAttribute();
+  private void AFunctionName() => LogFromAttribute();
 
   // Pass a custom name and description
   [ConsoleCommand("Say", "Shows a message in the console")]
