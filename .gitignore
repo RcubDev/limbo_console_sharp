@@ -25,3 +25,6 @@ Limbo.Console.Sharp/.idea
 **/obj/**
 **/bin/**
 **/.vs
+
+# Ignore Rider settings
+.idea
