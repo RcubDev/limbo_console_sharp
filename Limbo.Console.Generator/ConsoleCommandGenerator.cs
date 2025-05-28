@@ -34,7 +34,7 @@ namespace Limbo.Console.Sharp.Generator
                 foreach (var group in grouped)
                 {
                     var typeSymbol = group.Key;
-                    var src = GenerateRegisterFunction(typeSymbol, group);
+                    var src = GenerateRegisterFunction(typeSymbol, group.ToArray());
                     spc.AddSource($"{typeSymbol.Name}_ConsoleCommands.g.cs", SourceText.From(src, Encoding.UTF8));
                 }
             });
@@ -45,15 +45,16 @@ namespace Limbo.Console.Sharp.Generator
             var methodSyntax = (MethodDeclarationSyntax)context.Node;
             var methodSymbol = context.SemanticModel.GetDeclaredSymbol(methodSyntax) as IMethodSymbol;
             if (methodSymbol is null || !methodSymbol.GetAttributes().Any(attr => attr.AttributeClass?.Name == nameof(ConsoleCommandAttribute)))
+            {
                 return null;
+            }
 
             var attrData = methodSymbol.GetAttributes().First(attr => attr.AttributeClass?.Name == nameof(ConsoleCommandAttribute));
-            ImmutableArray<TypedConstant> args = attrData.ConstructorArguments;
-
-            return new CommandMethodInfo(methodSymbol, args);
+            var args = attrData.ConstructorArguments;
+            
         }
-
-        private static string GenerateRegisterFunction(ISymbol classSymbol, IEnumerable<CommandMethodInfo> methods)
+        
+        private static string GenerateRegisterFunction(ISymbol classSymbol, CommandMethodInfo[] methods)
         {
             var ns = classSymbol.ContainingNamespace.ToDisplayString();
             var sb = new StringBuilder();
@@ -67,48 +68,13 @@ namespace Limbo.Console.Sharp.Generator
                 sb.AppendLine($"namespace {ns} {{");
             }
 
-            string accessibility;
-            switch (classSymbol.DeclaredAccessibility)
-            {
-                case Accessibility.Public:
-                    accessibility = "public";
-                    break;
-                case Accessibility.Internal:
-                    accessibility = "internal";
-                    break;
-                case Accessibility.Private:
-                    accessibility = "private";
-                    break;
-                case Accessibility.Protected:
-                    accessibility = "protected";
-                    break;
-                case Accessibility.ProtectedAndInternal:
-                    accessibility = "protected internal";
-                    break;
-                case Accessibility.ProtectedOrInternal:
-                    accessibility = "internal protected";
-                    break;
-                default:
-                    accessibility = "internal";
-                    break;
-            }
+            var accessibility = GetAccessibilityString(classSymbol.DeclaredAccessibility);
 
-            sb.AppendLine($"{accessibility} partial class {classSymbol.Name} {{"); sb.AppendLine(" private void RegisterConsoleCommands() {");
 
-            foreach (var method in methods)
-            {
-                var callable = method.Method.Parameters.Length == 0
-                  ? $"new Callable(this, nameof({method.Method.Name}))"
-                  : $"new Callable(this, \"{method.Method.Name}\")"; // TODO: consider arg-aware logic
-
-                var registerCall = method.Description != null
-                  ? $"LimboConsole.RegisterCommand({callable}, \"{method.Name}\", \"{method.Description}\");"
-                  : $"LimboConsole.RegisterCommand({callable}, \"{method.Name}\");";
-
-                sb.AppendLine("    " + registerCall);
-            }
-
-            sb.AppendLine("  }");
+            sb.AppendLine($"{accessibility} partial class {classSymbol.Name} {{"); 
+            AddRegisterConsoleCommands(sb, methods);
+            sb.AppendLine();
+            AddUnregisterConsoleCommands(sb, methods);
             sb.AppendLine("}"); // class
 
             if (!string.IsNullOrEmpty(ns) && !classSymbol.ContainingNamespace.IsGlobalNamespace)
@@ -117,6 +83,60 @@ namespace Limbo.Console.Sharp.Generator
             }
 
             return sb.ToString();
+        }
+
+        private static string GetAccessibilityString(Accessibility accessDefinition)
+        {
+            switch (accessDefinition)
+            {
+                case Accessibility.Public:
+                    return "public";
+                case Accessibility.Internal:
+                    return "internal";
+                case Accessibility.Private:
+                    return "private";
+                case Accessibility.Protected:
+                    return "protected";
+                case Accessibility.ProtectedAndInternal:
+                    return "protected internal";
+                case Accessibility.ProtectedOrInternal:
+                    return "internal protected";
+                case Accessibility.NotApplicable:
+                default:
+                    return "internal";
+            }
+        }
+
+        private static void AddRegisterConsoleCommands(StringBuilder sb, IEnumerable<CommandMethodInfo> methods)
+        {
+            sb.AppendLine(" private void RegisterConsoleCommands() {");
+
+            foreach (var method in methods)
+            {
+                var callable = method.Method.Parameters.Length == 0
+                    ? $"new Callable(this, nameof({method.Method.Name}))"
+                    : $"new Callable(this, \"{method.Method.Name}\")"; // TODO: consider arg-aware logic
+
+                var registerCall = method.Description != null
+                    ? $"LimboConsole.RegisterCommand({callable}, \"{method.Name}\", \"{method.Description}\");"
+                    : $"LimboConsole.RegisterCommand({callable}, \"{method.Name}\");";
+
+                sb.AppendLine("    " + registerCall);
+            }
+
+            sb.AppendLine("  }");
+        }
+
+        private static void AddUnregisterConsoleCommands(StringBuilder sb, IEnumerable<CommandMethodInfo> methods)
+        {
+            sb.AppendLine("  private void UnregisterConsoleCommands() {");
+
+            foreach (var method in methods) {
+                var unregisterCall = $"LimboConsole.UnregisterCommand(\"{method.Name}\");";
+                sb.AppendLine("    " + unregisterCall);
+            }
+
+            sb.AppendLine("  }"); // end Unregister
         }
 
         private sealed class CommandMethodInfo
