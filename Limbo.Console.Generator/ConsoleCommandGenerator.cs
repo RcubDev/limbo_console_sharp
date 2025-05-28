@@ -51,7 +51,9 @@ namespace Limbo.Console.Sharp.Generator
 
             var attrData = methodSymbol.GetAttributes().First(attr => attr.AttributeClass?.Name == nameof(ConsoleCommandAttribute));
             var args = attrData.ConstructorArguments;
+            var autoCompletes = AutoCompletes.Parse(methodSymbol);
             
+            return new CommandMethodInfo(methodSymbol, args, autoCompletes);
         }
         
         private static string GenerateRegisterFunction(ISymbol classSymbol, CommandMethodInfo[] methods)
@@ -122,6 +124,10 @@ namespace Limbo.Console.Sharp.Generator
                     : $"LimboConsole.RegisterCommand({callable}, \"{method.Name}\");";
 
                 sb.AppendLine("    " + registerCall);
+                
+                foreach (var autoComplete in method.AutoCompletes) {
+                    sb.AppendLine($"    LimboConsole.AddArgumentAutocompleteSource(\"{method.Name}\", {autoComplete.ArgIndex}, Callable.From(() => {autoComplete.SourceMethod}()));");
+                }
             }
 
             sb.AppendLine("  }");
@@ -141,18 +147,21 @@ namespace Limbo.Console.Sharp.Generator
 
         private sealed class CommandMethodInfo
         {
-            public CommandMethodInfo(IMethodSymbol method, ImmutableArray<TypedConstant> args)
+            public CommandMethodInfo(IMethodSymbol method, ImmutableArray<TypedConstant> args, IEnumerable<AutoCompleteDefinition> autoCompletes)
             {
                 Method = method;
                 ContainingType = method.ContainingType;
                 Name = args.Length > 0 ? args[0].Value?.ToString() ?? method.Name : method.Name;
                 Description = args.Length > 1 ? args[1].Value?.ToString() : null;
+                AutoCompletes = autoCompletes.ToList(); 
             }
 
             public IMethodSymbol Method { get; }
             public INamedTypeSymbol ContainingType { get; }
             public string Name { get; }
             public string Description { get; }
+            public List<AutoCompleteDefinition> AutoCompletes { get; }
+
         }
     }
 }
