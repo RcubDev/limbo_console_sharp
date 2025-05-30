@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
-
+using Limbo.Console.Generator.AutoCompletion;
 
 namespace Limbo.Console.Sharp.Generator
 {
