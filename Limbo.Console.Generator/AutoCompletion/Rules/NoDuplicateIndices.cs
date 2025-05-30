@@ -15,9 +15,7 @@ namespace Limbo.Console.Generator.AutoCompletion.Rules
                                       .ToList();
 
             if (!duplicateArgIndexes.Any())
-            {
                 return;
-            }
 
             var argList = string.Join(", ", duplicateArgIndexes);
 
