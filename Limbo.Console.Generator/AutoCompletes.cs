@@ -35,10 +35,8 @@ namespace Limbo.Console.Sharp.Generator
                                       .Select(g => g.Key)
                                       .ToList();
 
-            if (!duplicateArgIndexes.Any())
-            {
+            if (!duplicateArgIndexes.Any()) 
                 return;
-            }
 
             var argList = string.Join(", ", duplicateArgIndexes);
 

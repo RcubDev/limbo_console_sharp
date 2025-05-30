@@ -103,7 +103,6 @@ namespace Limbo.Console.Sharp.Generator
                     return "protected internal";
                 case Accessibility.ProtectedOrInternal:
                     return "internal protected";
-                case Accessibility.NotApplicable:
                 default:
                     return "internal";
             }
