@@ -19,7 +19,7 @@ This plugin is currently in development, so expect breaking changes.
 
 ## How to use
 
-> 🛈 LimboConsole can be added as a Git submodule
+> ℹ LimboConsole can be added as a Git submodule
 
 Place the source code in the `res://addons/limbo_console/` directory, and enable this plugin in the project settings, then reload the project. Toggle the console with the `GRAVE ACCENT` key (aka backtick - the key to the left of the `1` key). This can be changed in the Input Map tab in the project settings.
 
@@ -32,6 +32,8 @@ func _ready() -> void:
 func multiply(a: float, b: float) -> void:
 	LimboConsole.info("a * b: " + str(a * b))
 ```
+
+> ℹ For C# support, see the next section.
 
 The example above adds a command that multiplies two numbers and prints the result (type `multiply 2 4`). Additionally, you can specify a name and a description:
 
@@ -53,17 +55,23 @@ Several basic types are supported for command arguments, such as `bool`, `int`, 
 Autocompletion works for both command names and history. It can also be implemented for specific command arguments, as shown in the following example:
 ```gdscript
 LimboConsole.register_command(teleport, "teleport", "teleport to site on this level")
-LimboConsole.add_argument_autocomplete_source("teleport", 1,
+LimboConsole.add_argument_autocomplete_source("teleport", 0,
 		func(): return ["entrance", "caves", "boss"]
 )
 ```
 For a dynamically generated list of autocomplete values, the code could look like this:
 ```gdscript
-LimboConsole.add_argument_autocomplete_source("teleport", 1,
+LimboConsole.add_argument_autocomplete_source("teleport", 0,
 		func(): return get_tree().get_nodes_in_group("teleportation_site").map(
 				func(node): return node.name)
 )
 ```
+
+### Using in C#
+
+A community-maintained C# wrapper for this project is available as a NuGet package: https://github.com/ryan-linehan/limbo_console_sharp
+ 
+Thanks to @ryan-linehan for maintaining it!
 
 ### Methods and properties
 

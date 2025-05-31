@@ -43,6 +43,7 @@ var _output_debug_color: Color
 var _entry_text_color: Color
 var _entry_hint_color: Color
 var _entry_command_found_color: Color
+var _entry_subcommand_color: Color
 var _entry_command_not_found_color: Color
 
 var _options: ConsoleOptions
@@ -167,11 +168,11 @@ func _input(p_event: InputEvent) -> void:
 func _process(delta: float) -> void:
 	var done_sliding := false
 	if _is_open:
-		_open_t = move_toward(_open_t, 1.0, _open_speed * delta)
+		_open_t = move_toward(_open_t, 1.0, _open_speed * delta * 1.0/Engine.time_scale)
 		if _open_t == 1.0:
 			done_sliding = true
 	else: # We close faster than opening.
-		_open_t = move_toward(_open_t, 0.0, _open_speed * delta * 1.5)
+		_open_t = move_toward(_open_t, 0.0, _open_speed * delta * 1.5 * 1.0/Engine.time_scale)
 		if is_zero_approx(_open_t):
 			done_sliding = true
 
@@ -232,7 +233,7 @@ func clear_console() -> void:
 ## Erases the history that is persisted to the disk
 func erase_history() -> void:
 	_history.clear()
-	var file := FileAccess.open(LimboConsole.HISTORY_FILE, FileAccess.WRITE)
+	var file := FileAccess.open(CommandHistory.HISTORY_FILE, FileAccess.WRITE)
 	if file:
 		file.store_string("")
 		file.close()
@@ -377,7 +378,7 @@ func add_argument_autocomplete_source(p_command: String, p_argument: int, p_sour
 	if not has_command(p_command):
 		push_error("LimboConsole: Can't add autocomplete source: command doesn't exist: ", p_command)
 		return
-	if p_argument < 1 or p_argument > 5:
+	if p_argument < 0 or p_argument > 4:
 		push_error("LimboConsole: Can't add autocomplete source: argument index out of bounds: ", p_argument)
 		return
 	var argument_values = p_source.call()
@@ -487,8 +488,8 @@ func usage(p_command: String) -> Error:
 				def_value = "\"" + def_value + "\""
 			def_spec = " = %s" % [def_value]
 		arg_lines += "  %s: %s%s\n" % [arg_name, type_string(arg_type) if arg_type != TYPE_NIL else "Variant", def_spec]
-		if _argument_autocomplete_sources.has([p_command, i + 1]):
-			var auto_complete_callable: Callable = _argument_autocomplete_sources[[p_command, i + 1]]
+		if _argument_autocomplete_sources.has([p_command, i]):
+			var auto_complete_callable: Callable = _argument_autocomplete_sources[[p_command, i]]
 			var arg_autocompletes = auto_complete_callable.call()
 			if len(arg_autocompletes) > 0:
 				var values: String = str(arg_autocompletes).replace("[", "").replace("]", "")
@@ -604,6 +605,7 @@ func _init_theme() -> void:
 	_entry_text_color = theme.get_color(&"entry_text_color", CONSOLE_COLORS_THEME_TYPE)
 	_entry_hint_color = theme.get_color(&"entry_hint_color", CONSOLE_COLORS_THEME_TYPE)
 	_entry_command_found_color = theme.get_color(&"entry_command_found_color", CONSOLE_COLORS_THEME_TYPE)
+	_entry_subcommand_color = theme.get_color(&"entry_subcommand_color", CONSOLE_COLORS_THEME_TYPE)
 	_entry_command_not_found_color = theme.get_color(&"entry_command_not_found_color", CONSOLE_COLORS_THEME_TYPE)
 
 	_output.add_theme_color_override(&"default_color", _output_text_color)
@@ -611,6 +613,7 @@ func _init_theme() -> void:
 	_entry.add_theme_color_override(&"hint_color", _entry_hint_color)
 	_entry.syntax_highlighter.command_found_color = _entry_command_found_color
 	_entry.syntax_highlighter.command_not_found_color = _entry_command_not_found_color
+	_entry.syntax_highlighter.subcommand_color = _entry_subcommand_color
 	_entry.syntax_highlighter.text_color = _entry_text_color
 
 
@@ -840,6 +843,8 @@ func _autocomplete() -> void:
 		_autocomplete_matches.push_back(match_str)
 		_update_autocomplete()
 
+
+## Goes in the opposite direction for the autocomplete suggestion
 func _reverse_autocomplete():
 	if not _autocomplete_matches.is_empty():
 		var match_str = _autocomplete_matches[_autocomplete_matches.size() - 1]
@@ -849,6 +854,7 @@ func _reverse_autocomplete():
 		_fill_entry(match_str)
 		_update_autocomplete()
 
+
 ## Updates autocomplete suggestions and hint based on user input.
 func _update_autocomplete() -> void:
 	var argv: PackedStringArray = _expand_alias(_parse_command_line(_entry.text))
@@ -856,34 +862,14 @@ func _update_autocomplete() -> void:
 		argv.append("")
 	var command_name: String = argv[0]
 	var last_arg: int = argv.size() - 1
-
 	if _autocomplete_matches.is_empty() and not _entry.text.is_empty():
-		if last_arg == 0:
-			# Command name
-			var line: String = _entry.text
-			for k in get_command_names(true):
-				if k.begins_with(line):
-					_autocomplete_matches.append(k)
-			_autocomplete_matches.sort()
-		else:
-			# Arguments
-			var key := [command_name, last_arg]
-			if _argument_autocomplete_sources.has(key):
-				var argument_values = _argument_autocomplete_sources[key].call()
-				if not _validate_autocomplete_result(argument_values, command_name):
-					argument_values = []
-				var matches: PackedStringArray = []
-				for value in argument_values:
-					if str(value).begins_with(argv[last_arg]):
-						matches.append(_entry.text.substr(0, _entry.text.length() - argv[last_arg].length()) + str(value))
-				matches.sort()
-				_autocomplete_matches.append_array(matches)
-			# History
-			if _options.autocomplete_use_history_with_matches or \
-			 		len(_autocomplete_matches) == 0:
-				for i in range(_history.size() - 1, -1, -1):
-					if _history.get_entry(i).begins_with(_entry.text):
-						_autocomplete_matches.append(_history.get_entry(i))
+		if last_arg == 0 and not argv[0].is_empty() \
+			and len(argv[0].split(" ")) <= 1:
+			_add_first_input_autocompletes(command_name)
+		elif last_arg != 0:
+			_add_argument_autocompletes(argv)
+			_add_subcommand_autocompletes(_entry.text)
+			_add_history_autocompletes()
 
 	if _autocomplete_matches.size() > 0 \
 			and _autocomplete_matches[0].length() > _entry.text.length() \
@@ -891,6 +877,76 @@ func _update_autocomplete() -> void:
 		_entry.autocomplete_hint = _autocomplete_matches[0].substr(_entry.text.length())
 	else:
 		_entry.autocomplete_hint = ""
+
+
+## Adds auto completes for the first index of a registered
+## commands when the command is split on " "
+func _add_first_input_autocompletes(command_name: String) -> void:
+	for cmd_name in get_command_names(true):
+		var first_input: String = cmd_name.split(" ")[0]
+		if first_input.begins_with(command_name) and \
+			 first_input not in _autocomplete_matches:
+				_autocomplete_matches.append(first_input)
+	_autocomplete_matches.sort()
+
+
+## Adds auto-completes based on user added arguments for a command. [br]
+## p_argv is expected to contain full command as the first element (including subcommands).
+func _add_argument_autocompletes(p_argv: PackedStringArray) -> void:
+	if p_argv.is_empty():
+		return
+	var command: String = p_argv[0]
+	var last_arg: int = p_argv.size() - 1
+	var key := [command, last_arg - 1] # Argument indices are 0-based.
+	if _argument_autocomplete_sources.has(key):
+		var argument_values = _argument_autocomplete_sources[key].call()
+		if not _validate_autocomplete_result(argument_values, command):
+			argument_values = []
+		var matches: PackedStringArray = []
+		for value in argument_values:
+			if str(value).begins_with(p_argv[last_arg]):
+				matches.append(_entry.text.substr(0, _entry.text.length() - p_argv[last_arg].length()) + str(value))
+		matches.sort()
+		_autocomplete_matches.append_array(matches)
+
+
+## Adds auto-completes based on the history
+func _add_history_autocompletes() -> void:
+	if _options.autocomplete_use_history_with_matches or \
+			len(_autocomplete_matches) == 0:
+		for i in range(_history.size() - 1, -1, -1):
+			if _history.get_entry(i).begins_with(_entry.text):
+				_autocomplete_matches.append(_history.get_entry(i))
+
+
+## Adds subcommand auto-complete suggestions based on registered commands
+## and the current user input
+func _add_subcommand_autocompletes(typed_val: String) -> void:
+	var command_names: PackedStringArray = get_command_names(true)
+	var typed_val_tokens: PackedStringArray = typed_val.split(" ")
+	var result: Dictionary = {} # Hashset. "autocomplete" => N/A
+	for cmd in command_names:
+		var cmd_split = cmd.split(" ")
+		if len(cmd_split) < len(typed_val_tokens):
+			continue
+
+		var last_match: int = 0
+		for i in len(typed_val_tokens):
+			if cmd_split[i] != typed_val_tokens[i]:
+				break
+			last_match += 1
+
+		if last_match < len(typed_val_tokens) - 1:
+			continue
+
+		if len(cmd_split) >= len(typed_val_tokens) \
+			and cmd_split[last_match].begins_with(typed_val_tokens[-1]):
+			var partial_cmd_arr: PackedStringArray = cmd_split.slice(0, last_match + 1)
+			result.get_or_add(" ".join(partial_cmd_arr))
+
+	var matches = result.keys()
+	matches.sort()
+	_autocomplete_matches.append_array(matches)
 
 
 func _clear_autocomplete() -> void:
@@ -964,7 +1020,7 @@ func _hide_console() -> void:
 	if _control.visible:
 		_control.hide()
 		_control_block.hide()
-		
+
 		if _options.pause_when_open:
 			if not _was_already_paused:
 				get_tree().paused = false
