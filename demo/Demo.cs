@@ -49,9 +49,28 @@ public partial class Demo : Node2D
         LimboConsole.Info("AttributeCommandWithArg executed with arg: " + arg1);
     }
 
+    [ConsoleCommand]
+    public void ColorsAndNumbers([AutoComplete(nameof(Numbers))] int numbers, [AutoComplete(nameof(Colors))] string colors)
+    {
+        LimboConsole.Info("ColorsAndNumbers command executed with number: " + numbers);
+        LimboConsole.Info("ColorsAndNumbers command executed with color: " + colors);
+    }
+
+    [ConsoleCommand]
+    public void SecondParameterAutoCompleted(int numbers, [AutoComplete(nameof(Colors))] string colors)
+    {
+        LimboConsole.Info("ColorsAndNumbers command executed with number: " + numbers);
+        LimboConsole.Info("ColorsAndNumbers command executed with color: " + colors);
+    }
+
     public string[] Colors()
     {
         return new[] { "red", "green", "blue" };
+    }
+
+    public int[] Numbers()
+    {
+        return new[] { 1, 2, 3, 4, 5 };
     }
 
     /// <summary>

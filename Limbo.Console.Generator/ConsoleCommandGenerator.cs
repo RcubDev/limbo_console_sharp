@@ -44,10 +44,8 @@ namespace Limbo.Console.Sharp.Generator
         {
             var methodSyntax = (MethodDeclarationSyntax)context.Node;
             var methodSymbol = context.SemanticModel.GetDeclaredSymbol(methodSyntax) as IMethodSymbol;
-            if (methodSymbol is null || !methodSymbol.GetAttributes().Any(attr => attr.AttributeClass?.Name == nameof(ConsoleCommandAttribute)))
-            {
-                return null;
-            }
+            if (methodSymbol is null || !methodSymbol.GetAttributes().Any(attr => attr.AttributeClass?.Name == nameof(ConsoleCommandAttribute)))            
+                return null;            
 
             var attrData = methodSymbol.GetAttributes().First(attr => attr.AttributeClass?.Name == nameof(ConsoleCommandAttribute));
             var args = attrData.ConstructorArguments;
