@@ -152,14 +152,11 @@ namespace Limbo.Console.Sharp.Generator
             {
                 Method = method;
                 ContainingType = method.ContainingType;
-                Name = args.Length > 0 ? args[0].Value?.ToString() ?? method.Name : method.Name;
+                string name = args.Length > 0 ? args[0].Value?.ToString() : null;
+                // If the name is not provided we'll opt to use the name of the method the attribute is on to drive the name
+                Name = string.IsNullOrEmpty(name) ? method.Name : name;
                 Description = args.Length > 1 ? args[1].Value?.ToString() : null;
                 AutoCompletes = autoCompletes.ToList();
-                // If the name is not provided we'll opt to use the name of the method the attribute is on to drive the name
-                if(string.IsNullOrEmpty(Name))
-                {
-                    Name = Method.Name;
-                }
             }
 
             public IMethodSymbol Method { get; }
