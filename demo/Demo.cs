@@ -41,7 +41,8 @@ public partial class Demo : Node2D
     {
         LimboConsole.Info("AttributeCommand executed!");
     }
-    [ConsoleCommand("AttributeCommandWithArg", "A command registered via attributes using source gen!")]
+
+    [ConsoleCommand(description: "A command registered via attributes using source gen!")]
     [AutoComplete(nameof(Colors))]
     public void AttributeConsoleCommandWithArg(string arg1)
     {
