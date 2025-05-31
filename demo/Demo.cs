@@ -29,6 +29,8 @@ public partial class Demo : Node2D
 
         // Commands with attributes will only get registered if the RegisterConsoleCommands method is used
         // from the source generator
+        // NOTE: If this method isn't showing up make sure have used an attribute in the class
+        // and that you have built the project to generate the code (sometimes IDE intellisense will do this for you but not always)
         RegisterConsoleCommands();
         // NOTE: C# does not support bind and unbind, use lambdas instead:
         // see https://docs.godotengine.org/en/stable/tutorials/scripting/c_sharp/c_sharp_differences.html#callable        
@@ -38,6 +40,17 @@ public partial class Demo : Node2D
     public void AttributeConsoleCommand()
     {
         LimboConsole.Info("AttributeCommand executed!");
+    }
+    [ConsoleCommand("AttributeCommandWithArg", "A command registered via attributes using source gen!")]
+    [AutoComplete(nameof(Colors))]
+    public void AttributeConsoleCommandWithArg(string arg1)
+    {
+        LimboConsole.Info("AttributeCommandWithArg executed with arg: " + arg1);
+    }
+
+    public string[] Colors()
+    {
+        return new[] { "red", "green", "blue" };
     }
 
     /// <summary>
@@ -144,5 +157,12 @@ public partial class Demo : Node2D
     private void OnConsoleToggled(bool isShown)
     {
         LimboConsole.PrintLine("Console toggled: " + isShown);
+    }
+    
+    override public void _ExitTree()
+    {
+        // Unregister all commands to avoid memory leaks
+        UnregisterConsoleCommands();
+        LimboConsole.DisconnectToggled(new Callable(this, MethodName.OnConsoleToggled));
     }
 }
