@@ -134,6 +134,8 @@ namespace Limbo.Console.Sharp.Generator
 
         private static void AddUnregisterConsoleCommands(StringBuilder sb, IEnumerable<CommandMethodInfo> methods)
         {
+            // NOTE: Limbo will automatically unregister the registed auto-completes
+            // when its command is unregistered, so we don't need to handle
             sb.AppendLine("  private void UnregisterConsoleCommands() {");
 
             foreach (var method in methods) {
