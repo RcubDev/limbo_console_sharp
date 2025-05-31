@@ -19,14 +19,6 @@ namespace Limbo.Console.Sharp
         public string Description { get; }
 
         // ReSharper disable once UnusedMember.Global
-        /// <inheritdoc />
-        public ConsoleCommandAttribute() : this(string.Empty, string.Empty) { }
-
-        // ReSharper disable once UnusedMember.Global
-        /// <inheritdoc />
-        public ConsoleCommandAttribute(string name) : this(name, string.Empty) { }
-
-        // ReSharper disable once UnusedMember.Global
         // ReSharper disable once ConvertToPrimaryConstructor
         /// <summary>
         /// Defines how a method should be treated as a console command.
@@ -34,7 +26,7 @@ namespace Limbo.Console.Sharp
         /// <param name="name"></param>
         /// <param name="description"></param>
         // ReSharper disable once MemberCanBePrivate.Global
-        public ConsoleCommandAttribute(string name, string description)
+        public ConsoleCommandAttribute(string name = "", string description = "")
         {
             Name = name;
             Description = description;
