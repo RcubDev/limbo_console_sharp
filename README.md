@@ -112,6 +112,27 @@ This example adds an auto-complete source for the first argument of the `abc` co
 
 > **Note**:  when registering an argument index starts at 1 not 0 and currently has a max of 5 arguments
 
+#### Using the [AutoComplete] Attribute
+
+You can also use the `[AutoComplete]` attribute to quickly define autocompletes for your attribute based console commands
+
+> 💡You _must_ call `RegisterConsoleCommands()` to enable your class's [AutoComplete]'s!
+
+
+```csharp
+[ConsoleCommand]
+[AutoComplete(nameof(Colors))]
+public void FavoriteColorCommand(string colors) {
+  // Do something
+}
+
+private string[] Colors() {
+  return new [] {"red", "blue", "green"};
+}
+```
+
+This example adds an auto-complete source for the first argument of the `FavoriteColorCommand` command, suggesting the values `red`, `blue`, and `green`.
+
 ### More examples
 
 See run the demo project and see [`Demo.cs`](demo/Demo.cs) for more examples of how to use the package
