@@ -12,11 +12,19 @@ namespace Limbo.Console.Generator.AutoCompletion
     public static class AutoCompletes
     {
         /// <summary>
+        /// Validation rules for auto-completion attributes
+        /// </summary>
+        private static readonly IEnumerable<IValidationRule> ValidationRules = new IValidationRule[]
+{
+            new MustDecorateAConsoleCommand(),
+            new NoDuplicateIndices(),
+};
+        /// <summary>
         /// Parses all of the [AutoComplete] attributes on the method, if any.
         /// </summary>
         /// <param name="methodSymbol"></param>
         /// <returns></returns>
-        internal static IEnumerable<AutoCompleteDefinition> Parse(IMethodSymbol methodSymbol)
+        internal static (IEnumerable<AutoCompleteDefinition> autoCompleteDefinitions, IEnumerable<Diagnostic> diagnosticsResults)  Parse(IMethodSymbol methodSymbol, GeneratorSyntaxContext context)
         {
             var methodAutoCompletes = methodSymbol.GetAttributes()
                                             .Where(attr => attr.AttributeClass?.Name == nameof(AutoCompleteAttribute))
@@ -31,38 +39,27 @@ namespace Limbo.Console.Generator.AutoCompletion
                 ).ToArray();
 
             List<AutoCompleteDefinition> autoCompletes = new List<AutoCompleteDefinition>();
-            // TODO: Use context.ReportDiagnoistic to report this to a user as an error
-            if (methodAutoCompletes.Length > 0 && parameterAutoCompletes.Length > 0)                 
-                throw new System.Exception("Cannot mix method-level and parameter-level AutoComplete attributes on the same method.");            
-            else if (methodAutoCompletes.Length > 0)
+            if (methodAutoCompletes.Length > 0)
                 autoCompletes = new List<AutoCompleteDefinition>(methodAutoCompletes);
             else if (parameterAutoCompletes.Length > 0)
                 autoCompletes = new List<AutoCompleteDefinition>(parameterAutoCompletes);
 
+            var diagnosticResults = ValidateAutoCompletes(methodSymbol, autoCompletes);
 
-            // TODO: Add validator that parameter and method syntax cannot be mixed (OR support it -- a little complex to support)
-            ValidateAutoCompletes(methodSymbol, autoCompletes);
-
-            return autoCompletes;
+            return (autoCompletes, diagnosticResults);
         }
-        
-        private static readonly IEnumerable<IAutoCompleteValidationRule> ValidationRules = new IAutoCompleteValidationRule[]
-        {
-            new MustDecorateAConsoleCommand(),
-            new NoDuplicateIndices(),
-        };
 
-        private static void ValidateAutoCompletes(IMethodSymbol methodSymbol, IEnumerable<AutoCompleteDefinition> autoCompletes)
+        private static IEnumerable<Diagnostic> ValidateAutoCompletes(IMethodSymbol methodSymbol, IEnumerable<AutoCompleteDefinition> autoCompletes)
         {
             var autoCompletesArray = autoCompletes as AutoCompleteDefinition[] ?? autoCompletes.ToArray();
             if (!autoCompletesArray.Any())
-            {
-                return; // No auto-completes to validate
-            }
+                return Enumerable.Empty<Diagnostic>();
+            List<Diagnostic> diagnostics = new List<Diagnostic>();
             foreach (var rule in ValidationRules)
             {
-                rule.Validate(methodSymbol, autoCompletesArray);
+                diagnostics.AddRange(rule.Validate(methodSymbol, autoCompletesArray));
             }
+            return diagnostics;
         }
 
         private static AutoCompleteDefinition AsAutoCompleteDefinition(AttributeData attr, int? index = null)
@@ -73,7 +70,7 @@ namespace Limbo.Console.Generator.AutoCompletion
             var argIndex = attr.ConstructorArguments.Length > 1 ? (int)(attr.ConstructorArguments[1].Value ?? 0) : 0;
             if (index != null)
                 argIndex = index.Value;
-            return new AutoCompleteDefinition(sourceMethod, argIndex);
+            return new AutoCompleteDefinition(sourceMethod, argIndex, attr.ApplicationSyntaxReference?.GetSyntax()?.GetLocation());
         }
     }
 }

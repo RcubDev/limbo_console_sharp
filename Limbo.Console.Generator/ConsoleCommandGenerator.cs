@@ -15,45 +15,105 @@ namespace Limbo.Console.Sharp.Generator
     [Generator]
     public sealed class ConsoleCommandGenerator : IIncrementalGenerator
     {
+        public static readonly DiagnosticDescriptor MixedAutoCompleteUsage = new DiagnosticDescriptor(
+            id: "LIMBO1002",
+            title: "Invalid AutoComplete Attribute Usage",
+            messageFormat: "Cannot mix method-level and parameter-level AutoComplete attributes on the same method",
+            category: "Limbo.Console.Generator",
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true
+        );
         public void Initialize(IncrementalGeneratorInitializationContext context)
         {
             var methodsWithAttr = context.SyntaxProvider
               .CreateSyntaxProvider(
                 predicate: (s, _) => s is MethodDeclarationSyntax m && m.AttributeLists.Count > 0,
                 transform: (ctx, _) => GetCommandMethod(ctx))
-              .Where(m => m != null);
+              .Where(m => m.MethodInfo != null);
 
             var compilationAndMethods = context.CompilationProvider.Combine(methodsWithAttr.Collect());
 
-            context.RegisterSourceOutput(compilationAndMethods, (spc, source) => {
-                var (compilation, methods) = source;
-                var grouped = methods
-                  .OfType<CommandMethodInfo>()
-                  .GroupBy(m => m.ContainingType, SymbolEqualityComparer.Default);
+            context.RegisterSourceOutput(compilationAndMethods, (spc, source) =>
+            {
+                var (compilation, methodResults) = source;
+
+                // Report diagnostics
+                foreach (var result in methodResults)
+                {
+                    foreach (var diag in result.Diagnostics)
+                    {
+                        spc.ReportDiagnostic(diag);
+                    }
+                }
+
+                var grouped = methodResults
+                  .Where(m => m.MethodInfo != null &&
+                              // Only script out methods with no errors - we don't want to be the reason that the file doesn't generate
+                              // we want to make sure that RegisterConsoleCommands() always generates even if it is empty
+                              m.Diagnostics.Where(x => x.DefaultSeverity == DiagnosticSeverity.Error).Any()
+                            )
+                  .GroupBy(m => m.MethodInfo.ContainingType, SymbolEqualityComparer.Default);
 
                 foreach (var group in grouped)
                 {
                     var typeSymbol = group.Key;
-                    var src = GenerateRegisterFunction(typeSymbol, group.ToArray());
+                    var src = GenerateRegisterFunction(typeSymbol, group.Select(x => x.MethodInfo).ToArray());
                     spc.AddSource($"{typeSymbol.Name}_ConsoleCommands.g.cs", SourceText.From(src, Encoding.UTF8));
                 }
             });
         }
 
-        private static CommandMethodInfo GetCommandMethod(GeneratorSyntaxContext context)
+        private static CommandMethodResult GetCommandMethod(GeneratorSyntaxContext context)
         {
             var methodSyntax = (MethodDeclarationSyntax)context.Node;
             var methodSymbol = context.SemanticModel.GetDeclaredSymbol(methodSyntax) as IMethodSymbol;
-            if (methodSymbol is null || !methodSymbol.GetAttributes().Any(attr => attr.AttributeClass?.Name == nameof(ConsoleCommandAttribute)))            
-                return null;            
+            // TODO: Refactor to rule interface
+            if (methodSymbol is null || !methodSymbol.GetAttributes().Any(attr => attr.AttributeClass?.Name == nameof(ConsoleCommandAttribute)))
+                return new CommandMethodResult(null, ImmutableArray<Diagnostic>.Empty);
 
             var attrData = methodSymbol.GetAttributes().First(attr => attr.AttributeClass?.Name == nameof(ConsoleCommandAttribute));
             var args = attrData.ConstructorArguments;
-            var autoCompletes = AutoCompletes.Parse(methodSymbol);
-            
-            return new CommandMethodInfo(methodSymbol, args, autoCompletes);
+
+            var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>();
+            (var autoCompletes, var diagnosticResults) = AutoCompletes.Parse(methodSymbol, context);
+            var info = new CommandMethodInfo(methodSymbol, args, autoCompletes);
+
+            diagnostics.AddRange(diagnosticResults);
+
+            // TODO: Refactor to the rule interface
+            bool hasMethodLevel = methodSymbol.GetAttributes().Any(attr => attr.AttributeClass?.Name == "AutoCompleteAttribute");
+            bool hasParameterLevel = methodSymbol.Parameters.Any(p => p.GetAttributes().Any(attr => attr.AttributeClass?.Name == "AutoCompleteAttribute"));
+
+            if (hasMethodLevel && hasParameterLevel)
+            {
+                diagnostics.Add(Diagnostic.Create(
+                    MixedAutoCompleteUsage,
+                    methodSyntax.GetLocation()
+                ));
+                // Optionally, return null method info if you want to skip generation for this method
+                return new CommandMethodResult(info, diagnostics.ToImmutable());
+            }
+
+            return new CommandMethodResult(info, diagnostics.ToImmutable());
         }
-        
+
+
+
+        // Helper struct to carry both method info and diagnostics
+        private struct CommandMethodResult
+        {
+            public CommandMethodInfo MethodInfo
+            { get; }
+            public ImmutableArray<Diagnostic> Diagnostics { get; }
+
+            public CommandMethodResult(CommandMethodInfo methodInfo, ImmutableArray<Diagnostic> diagnostics)
+            {
+                MethodInfo = methodInfo;
+                Diagnostics = diagnostics;
+            }
+        }
+
+
         private static string GenerateRegisterFunction(ISymbol classSymbol, CommandMethodInfo[] methods)
         {
             var ns = classSymbol.ContainingNamespace.ToDisplayString();
@@ -71,7 +131,7 @@ namespace Limbo.Console.Sharp.Generator
             var accessibility = GetAccessibilityString(classSymbol.DeclaredAccessibility);
 
 
-            sb.AppendLine($"{accessibility} partial class {classSymbol.Name} {{"); 
+            sb.AppendLine($"{accessibility} partial class {classSymbol.Name} {{");
             AddRegisterConsoleCommands(sb, methods);
             sb.AppendLine();
             AddUnregisterConsoleCommands(sb, methods);
@@ -121,8 +181,9 @@ namespace Limbo.Console.Sharp.Generator
                     : $"LimboConsole.RegisterCommand({callable}, \"{method.Name}\");";
 
                 sb.AppendLine("    " + registerCall);
-                
-                foreach (var autoComplete in method.AutoCompletes) {
+
+                foreach (var autoComplete in method.AutoCompletes)
+                {
                     sb.AppendLine($"    LimboConsole.AddArgumentAutocompleteSource(\"{method.Name}\", {autoComplete.ArgIndex}, Callable.From(() => {autoComplete.SourceMethod}()));");
                 }
             }
@@ -136,7 +197,8 @@ namespace Limbo.Console.Sharp.Generator
             // when its command is unregistered, so we don't need to handle
             sb.AppendLine("  private void UnregisterConsoleCommands() {");
 
-            foreach (var method in methods) {
+            foreach (var method in methods)
+            {
                 var unregisterCall = $"LimboConsole.UnregisterCommand(\"{method.Name}\");";
                 sb.AppendLine("    " + unregisterCall);
             }
@@ -164,5 +226,14 @@ namespace Limbo.Console.Sharp.Generator
             public List<AutoCompleteDefinition> AutoCompletes { get; }
 
         }
+    }
+
+    public enum LimboSourceGeneratorError
+    {
+        None = 0,
+        MixedAutoCompleteUsage = 1,
+        InvalidCommandMethod = 2,
+        MissingCommandAttribute = 3,
+        InvalidAutoCompleteSource = 4
     }
 }
