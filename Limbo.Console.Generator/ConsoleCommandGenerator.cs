@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using Limbo.Console.Generator.AutoCompletion;
+using Limbo.Console.Generator.AutoCompletion.Rules;
 
 namespace Limbo.Console.Sharp.Generator
 {
@@ -15,14 +16,13 @@ namespace Limbo.Console.Sharp.Generator
     [Generator]
     public sealed class ConsoleCommandGenerator : IIncrementalGenerator
     {
-        public static readonly DiagnosticDescriptor MixedAutoCompleteUsage = new DiagnosticDescriptor(
-            id: "LIMBO1002",
-            title: "Invalid AutoComplete Attribute Usage",
-            messageFormat: "Cannot mix method-level and parameter-level AutoComplete attributes on the same method",
-            category: "Limbo.Console.Generator",
-            DiagnosticSeverity.Error,
-            isEnabledByDefault: true
-        );
+        /// <summary>
+        /// Validation rules for console commands
+        /// </summary>
+        private static readonly IEnumerable<IValidationRule> ValidationRules = new IValidationRule[]
+        {
+                    new MixedAutoCompleteUsage()
+        };
         public void Initialize(IncrementalGeneratorInitializationContext context)
         {
             var methodsWithAttr = context.SyntaxProvider
@@ -50,7 +50,7 @@ namespace Limbo.Console.Sharp.Generator
                   .Where(m => m.MethodInfo != null
                                // Only script out methods with no errors - we don't want to be the reason that the file doesn't generate
                                // we want to make sure that RegisterConsoleCommands() always generates even if it is empty
-                               &&  m.Diagnostics.All(x => x.DefaultSeverity != DiagnosticSeverity.Error)
+                               && m.Diagnostics.All(x => x.DefaultSeverity != DiagnosticSeverity.Error)
                             )
                   .GroupBy(m => m.MethodInfo.ContainingType, SymbolEqualityComparer.Default);
 
@@ -79,40 +79,14 @@ namespace Limbo.Console.Sharp.Generator
             var info = new CommandMethodInfo(methodSymbol, args, autoCompletes);
 
             diagnostics.AddRange(diagnosticResults);
-
-            // TODO: Refactor to the rule interface
-            bool hasMethodLevel = methodSymbol.GetAttributes().Any(attr => attr.AttributeClass?.Name == "AutoCompleteAttribute");
-            bool hasParameterLevel = methodSymbol.Parameters.Any(p => p.GetAttributes().Any(attr => attr.AttributeClass?.Name == "AutoCompleteAttribute"));
-
-            if (hasMethodLevel && hasParameterLevel)
+            foreach (var item in ValidationRules)
             {
-                diagnostics.Add(Diagnostic.Create(
-                    MixedAutoCompleteUsage,
-                    methodSyntax.GetLocation()
-                ));
-                // Optionally, return null method info if you want to skip generation for this method
-                return new CommandMethodResult(info, diagnostics.ToImmutable());
+                var ruleDiagnostics = item.Validate(methodSymbol, autoCompletes);
+                diagnostics.AddRange(ruleDiagnostics);
             }
 
             return new CommandMethodResult(info, diagnostics.ToImmutable());
         }
-
-
-
-        // Helper struct to carry both method info and diagnostics
-        private struct CommandMethodResult
-        {
-            public CommandMethodInfo MethodInfo
-            { get; }
-            public ImmutableArray<Diagnostic> Diagnostics { get; }
-
-            public CommandMethodResult(CommandMethodInfo methodInfo, ImmutableArray<Diagnostic> diagnostics)
-            {
-                MethodInfo = methodInfo;
-                Diagnostics = diagnostics;
-            }
-        }
-
 
         private static string GenerateRegisterFunction(ISymbol classSymbol, CommandMethodInfo[] methods)
         {
@@ -224,16 +198,18 @@ namespace Limbo.Console.Sharp.Generator
             public string Name { get; }
             public string Description { get; }
             public List<AutoCompleteDefinition> AutoCompletes { get; }
-
         }
-    }
+        private struct CommandMethodResult
+        {
+            public CommandMethodInfo MethodInfo
+            { get; }
+            public ImmutableArray<Diagnostic> Diagnostics { get; }
 
-    public enum LimboSourceGeneratorError
-    {
-        None = 0,
-        MixedAutoCompleteUsage = 1,
-        InvalidCommandMethod = 2,
-        MissingCommandAttribute = 3,
-        InvalidAutoCompleteSource = 4
+            public CommandMethodResult(CommandMethodInfo methodInfo, ImmutableArray<Diagnostic> diagnostics)
+            {
+                MethodInfo = methodInfo;
+                Diagnostics = diagnostics;
+            }
+        }
     }
 }
