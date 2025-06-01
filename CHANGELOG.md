@@ -8,6 +8,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 - Replace with coming additions, changes, removals, or fixes
 
+## [0.0.1-beta-008] - 2025-05-31
+
+- Added
+  - [AutoComplete] attribute to allow for adding autocomplete sources to methods using [ConsoleCommand]
+  - Solution (`Limbo.Console.Sharp.sln`) + new csproj's: `Limbo.Console.Generator.csproj` and `Limbo.Console.Abstractions.csproj` to support command generation from [ConsoleCommand] attributes
+
+
 ## [0.0.1-beta-007] - 2025-05-25
 
 - Added
