@@ -47,10 +47,10 @@ namespace Limbo.Console.Sharp.Generator
                 }
 
                 var grouped = methodResults
-                  .Where(m => m.MethodInfo != null &&
-                              // Only script out methods with no errors - we don't want to be the reason that the file doesn't generate
-                              // we want to make sure that RegisterConsoleCommands() always generates even if it is empty
-                              m.Diagnostics.Where(x => x.DefaultSeverity == DiagnosticSeverity.Error).Any()
+                  .Where(m => m.MethodInfo != null
+                               // Only script out methods with no errors - we don't want to be the reason that the file doesn't generate
+                               // we want to make sure that RegisterConsoleCommands() always generates even if it is empty
+                               &&  m.Diagnostics.All(x => x.DefaultSeverity != DiagnosticSeverity.Error)
                             )
                   .GroupBy(m => m.MethodInfo.ContainingType, SymbolEqualityComparer.Default);
 
